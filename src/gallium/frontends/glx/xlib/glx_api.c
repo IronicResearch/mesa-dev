@@ -210,6 +210,12 @@ save_glx_visual( Display *dpy, XVisualInfo *vinfo,
       }
    }
 
+   /* Force the visual to have stereo quad buffers */
+   if (dbFlag && getenv("MESA_GLX_FORCE_STEREO")) {
+      stereoFlag = GL_TRUE;
+      _mesa_warning(NULL, "Mesa: Force GLX_STEREO visual.");
+   }
+   else
    if (stereoFlag) {
       /* stereo not supported */
       return NULL;

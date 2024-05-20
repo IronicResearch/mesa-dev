@@ -935,6 +935,7 @@ init_fbconfig_for_chooser(struct glx_config * config,
     */
    if (fbconfig_style_tags) {
       config->doubleBufferMode = GLX_DONT_CARE;
+      config->stereoMode = GLX_DONT_CARE;
       config->renderType = GLX_RGBA_BIT;
    }
 
@@ -1265,10 +1266,10 @@ glXChooseVisual(Display * dpy, int screen, int *attribList)
     ** Build a template from the defaults and the attribute list
     ** Free visual list and return if an unexpected token is encountered
     */
-   init_fbconfig_for_chooser(&test_config, GL_FALSE);
+   init_fbconfig_for_chooser(&test_config, GL_TRUE);
    __glXInitializeVisualConfigFromTags(&test_config, 512,
                                        (const INT32 *) attribList,
-                                       GL_TRUE, GL_FALSE);
+                                       GL_TRUE, GL_TRUE);
 
    /*
     ** Eliminate visuals that don't meet minimum requirements

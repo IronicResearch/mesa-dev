@@ -273,6 +273,12 @@ save_glx_visual( Display *dpy, XVisualInfo *vinfo,
       }
    }
 
+   /* Force the visual to have stereo quad buffers */
+   if (dbFlag && getenv("MESA_GLX_FORCE_STEREO")) {
+      stereoFlag = GL_TRUE;
+      _mesa_warning(NULL, "Mesa: Force GLX_STEREO visual.");
+   }
+   else
    if (stereoFlag) {
       /* stereo not supported */
       return NULL;
@@ -389,7 +395,7 @@ create_glx_visual( Display *dpy, XVisualInfo *visinfo )
       return save_glx_visual( dpy, visinfo,
 			      alphaFlag, /* alpha */
 			      GL_TRUE,   /* double */
-			      GL_FALSE,  /* stereo */
+			      GL_TRUE,   /* stereo */
 			      zBits,
 			      8,       /* stencil bits */
 			      accBits, /* r */
@@ -863,7 +869,7 @@ choose_visual( Display *dpy, int screen, const int *list, GLboolean fbConfig )
    GLboolean rgb_flag = rgbModeDefault;
    GLboolean alpha_flag = GL_FALSE;
    GLboolean double_flag = GL_FALSE;
-   GLboolean stereo_flag = GL_FALSE;
+   GLboolean stereo_flag = GL_TRUE;
    GLint depth_size = 0;
    GLint stencil_size = 0;
    GLint accumRedSize = 0;
