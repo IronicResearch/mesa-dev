@@ -66,6 +66,7 @@ supported_buffer_bitmask(const struct gl_context *ctx,
    else {
       /* A window system framebuffer */
       mask = BUFFER_BIT_FRONT_LEFT; /* always have this */
+ 
       if (fb->Visual.stereoMode) {
          mask |= BUFFER_BIT_FRONT_RIGHT;
          if (fb->Visual.doubleBufferMode) {

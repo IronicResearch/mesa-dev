@@ -229,6 +229,8 @@ driCreateConfigs(mesa_format format,
    int alpha_bits;
    bool is_srgb;
    bool is_float;
+   bool is_stereo = getenv("MESA_GLX_FORCE_STEREO");
+   int ii, jj, kk;
 
    switch (format) {
    case MESA_FORMAT_B5G6R5_UNORM:
@@ -239,11 +241,13 @@ driCreateConfigs(mesa_format format,
    case MESA_FORMAT_B8G8R8X8_SRGB:
       masks = format_table[1].masks;
       shifts = format_table[1].shifts;
+      is_stereo = true;
       break;
    case MESA_FORMAT_B8G8R8A8_UNORM:
    case MESA_FORMAT_B8G8R8A8_SRGB:
       masks = format_table[2].masks;
       shifts = format_table[2].shifts;
+      is_stereo = true;
       break;
    case MESA_FORMAT_R8G8B8A8_UNORM:
    case MESA_FORMAT_R8G8B8A8_SRGB:
@@ -299,6 +303,7 @@ driCreateConfigs(mesa_format format,
        return NULL;
 
     c = configs;
+    ii = jj = kk = 0;
     for ( k = 0 ; k < num_depth_stencil_bits ; k++ ) {
 	for ( i = 0 ; i < num_db_modes ; i++ ) {
 	    for ( h = 0 ; h < num_msaa_modes; h++ ) {
@@ -319,6 +324,7 @@ driCreateConfigs(mesa_format format,
 		    *c = malloc (sizeof **c);
 		    modes = &(*c)->modes;
 		    c++;
+        ii++;
 
 		    memset(modes, 0, sizeof *modes);
 		    modes->floatMode = is_float;
@@ -351,6 +357,9 @@ driCreateConfigs(mesa_format format,
 		    }
 		    else {
 		    	modes->doubleBufferMode = GL_TRUE;
+          jj++;
+          if (is_stereo) 
+              modes->stereoMode = GL_TRUE, kk++;
 		    	modes->swapMethod = db_modes[i];
 		    }
 
@@ -362,6 +371,8 @@ driCreateConfigs(mesa_format format,
 	}
     }
     *c = NULL;
+
+    printf("driconfigs: i=%d, j=%d, k=%d\n", ii, jj, kk);
 
     return configs;
 }
@@ -450,8 +461,15 @@ driGetConfigAttribIndex(const __DRIconfig *config,
     case __DRI_ATTRIB_CONFORMANT:
         *value = GL_TRUE;
         break;
+#if 0
     __ATTRIB(__DRI_ATTRIB_DOUBLE_BUFFER,		doubleBufferMode);
     __ATTRIB(__DRI_ATTRIB_STEREO,			stereoMode);
+#else
+    case __DRI_ATTRIB_STEREO:
+    case __DRI_ATTRIB_DOUBLE_BUFFER:
+        *value = config->modes.doubleBufferMode;
+        break;
+#endif
     case __DRI_ATTRIB_TRANSPARENT_TYPE:
     case __DRI_ATTRIB_TRANSPARENT_INDEX_VALUE: /* horrible bc hack */
         *value = GLX_NONE;

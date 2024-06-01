@@ -114,7 +114,7 @@ static const struct
       __ATTRIB(__DRI_ATTRIB_SAMPLE_BUFFERS, sampleBuffers),
       __ATTRIB(__DRI_ATTRIB_SAMPLES, samples),
       __ATTRIB(__DRI_ATTRIB_DOUBLE_BUFFER, doubleBufferMode),
-      __ATTRIB(__DRI_ATTRIB_STEREO, stereoMode),
+      __ATTRIB(__DRI_ATTRIB_STEREO, stereoMode),   // FIXME      
       __ATTRIB(__DRI_ATTRIB_AUX_BUFFERS, numAuxBuffers),
       __ATTRIB(__DRI_ATTRIB_SWAP_METHOD, swapMethod),
       __ATTRIB(__DRI_ATTRIB_BIND_TO_TEXTURE_RGB, bindToTextureRgb),
@@ -236,6 +236,21 @@ driConfigEqual(const __DRIcoreExtension *core,
             config->bindToMipmapTexture = 0;
          }
          break;
+
+      // FIXME
+      case __DRI_ATTRIB_STEREO: {
+         int r = scalarEqual(config, attrib, value);
+         printf("__DRI_ATTRIB_STEREO: %d\n", r);
+         return r;
+      }
+
+      case __DRI_ATTRIB_DOUBLE_BUFFER: {
+         int r = scalarEqual(config, attrib, value);
+         printf("__DRI_ATTRIB_DOUBLE_BUFFER: %d\n", r);
+         if (r && getenv("MESA_GLX_FORCE_STEREO"))
+            config->stereoMode = config->doubleBufferMode;
+         return r;
+      }
 
       default:
          if (!scalarEqual(config, attrib, value))
