@@ -987,6 +987,7 @@ dri3_create_screen(int screen, struct glx_display * priv)
    configs = driConvertConfigs(psc->core, psc->base.configs, driver_configs);
    visuals = driConvertConfigs(psc->core, psc->base.visuals, driver_configs);
 
+#if 0
    {
      int j, k, l;
      struct glx_config *m;
@@ -1011,6 +1012,7 @@ dri3_create_screen(int screen, struct glx_display * priv)
      }
      printf("visuals: j=%d, k=%d, l=%d\n", j, k, l);
    }
+#endif
 
    if (!configs || !visuals) {
        ErrorMessageF("No matching fbConfigs or visuals found\n");

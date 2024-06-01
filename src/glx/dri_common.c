@@ -240,13 +240,13 @@ driConfigEqual(const __DRIcoreExtension *core,
       // FIXME
       case __DRI_ATTRIB_STEREO: {
          int r = scalarEqual(config, attrib, value);
-         printf("__DRI_ATTRIB_STEREO: %d\n", r);
+         //printf("__DRI_ATTRIB_STEREO: %d\n", r);
          return r;
       }
 
       case __DRI_ATTRIB_DOUBLE_BUFFER: {
          int r = scalarEqual(config, attrib, value);
-         printf("__DRI_ATTRIB_DOUBLE_BUFFER: %d\n", r);
+         //printf("__DRI_ATTRIB_DOUBLE_BUFFER: %d\n", r);
          if (r && getenv("MESA_GLX_FORCE_STEREO"))
             config->stereoMode = config->doubleBufferMode;
          return r;
