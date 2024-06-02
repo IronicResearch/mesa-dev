@@ -240,7 +240,7 @@ driConfigEqual(const __DRIcoreExtension *core,
       // FIXME
       case __DRI_ATTRIB_STEREO: {
          int r = scalarEqual(config, attrib, value);
-         //printf("__DRI_ATTRIB_STEREO: %d\n", r);
+         printf("__DRI_ATTRIB_STEREO: %d\n", r);
          return r;
       }
 

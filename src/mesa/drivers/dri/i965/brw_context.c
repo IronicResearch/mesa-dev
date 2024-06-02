@@ -1531,9 +1531,19 @@ brw_update_dri2_buffers(struct brw_context *brw, __DRIdrawable *drawable)
            region_name = "dri2 fake front buffer";
            break;
 
+       case __DRI_BUFFER_FRONT_RIGHT:
+           rb = brw_get_renderbuffer(fb, BUFFER_FRONT_RIGHT);
+           region_name = "dri2 front right buffer";
+           break;
+
        case __DRI_BUFFER_BACK_LEFT:
            rb = brw_get_renderbuffer(fb, BUFFER_BACK_LEFT);
            region_name = "dri2 back buffer";
+           break;
+
+       case __DRI_BUFFER_BACK_RIGHT:
+           rb = brw_get_renderbuffer(fb, BUFFER_BACK_RIGHT);
+           region_name = "dri2 back right buffer";
            break;
 
        case __DRI_BUFFER_DEPTH:
@@ -1558,6 +1568,9 @@ brw_update_renderbuffers(__DRIcontext *context, __DRIdrawable *drawable)
 {
    struct brw_context *brw = context->driverPrivate;
    __DRIscreen *dri_screen = brw->screen->driScrnPriv;
+   struct gl_context *ctx = &brw->ctx;
+   bool stereo = ctx->Visual.stereoMode;
+
 
    /* Set this up front, so that in case our buffers get invalidated
     * while we're getting new buffers, we don't clobber the stamp and
@@ -1566,6 +1579,10 @@ brw_update_renderbuffers(__DRIcontext *context, __DRIdrawable *drawable)
 
    if (INTEL_DEBUG(DEBUG_DRI))
       fprintf(stderr, "enter %s, drawable %p\n", __func__, drawable);
+
+
+   // FIXME: why are image buffers used for render buffers?
+   // image buffers limited to front/back only
 
    if (dri_screen->image.loader)
       brw_update_image_buffers(brw, drawable);
@@ -1649,6 +1666,7 @@ brw_query_dri2_buffers(struct brw_context *brw,
    front_rb = brw_get_renderbuffer(fb, BUFFER_FRONT_LEFT);
    back_rb = brw_get_renderbuffer(fb, BUFFER_BACK_LEFT);
 
+
    memset(attachments, 0, sizeof(attachments));
    if ((_mesa_is_front_buffer_drawing(fb) ||
         _mesa_is_front_buffer_reading(fb) ||
@@ -1664,6 +1682,10 @@ brw_query_dri2_buffers(struct brw_context *brw,
 
       attachments[i++] = __DRI_BUFFER_FRONT_LEFT;
       attachments[i++] = brw_bits_per_pixel(front_rb);
+
+      front_rb = brw_get_renderbuffer(fb, BUFFER_FRONT_RIGHT);
+      attachments[i++] = __DRI_BUFFER_FRONT_RIGHT;
+      attachments[i++] = brw_bits_per_pixel(front_rb);
    } else if (front_rb && brw->front_buffer_dirty) {
       /* We have pending front buffer rendering, but we aren't querying for a
        * front buffer.  If the front buffer we have is a fake front buffer,
@@ -1677,6 +1699,10 @@ brw_query_dri2_buffers(struct brw_context *brw,
 
    if (back_rb) {
       attachments[i++] = __DRI_BUFFER_BACK_LEFT;
+      attachments[i++] = brw_bits_per_pixel(back_rb);
+
+      back_rb = brw_get_renderbuffer(fb, BUFFER_BACK_RIGHT);
+      attachments[i++] = __DRI_BUFFER_BACK_RIGHT;
       attachments[i++] = brw_bits_per_pixel(back_rb);
    }
 
@@ -1923,6 +1949,9 @@ brw_update_image_buffers(struct brw_context *brw, __DRIdrawable *drawable)
    uint32_t buffer_mask = 0;
    int ret;
 
+   struct gl_context *ctx = &brw->ctx;
+   bool stereo = ctx->Visual.stereoMode;
+
    front_rb = brw_get_renderbuffer(fb, BUFFER_FRONT_LEFT);
    back_rb = brw_get_renderbuffer(fb, BUFFER_BACK_LEFT);
 
@@ -1963,6 +1992,25 @@ brw_update_image_buffers(struct brw_context *brw, __DRIdrawable *drawable)
       brw_update_image_buffer(brw, drawable, back_rb, images.back,
                               __DRI_IMAGE_BUFFER_BACK);
    }
+
+#if 0 // FIXME: __DRI_IMAGE_BUFFER_BACK_RIGHT
+   if (images.image_mask & __DRI_IMAGE_BUFFER_BACK_RIGHT) {
+      drawable->w = images.back->width;
+      drawable->h = images.back->height;
+      back_rb = brw_get_renderbuffer(fb, BUFFER_BACK_RIGHT);
+      brw_update_image_buffer(brw, drawable, back_rb, images.back,
+                              __DRI_IMAGE_BUFFER_BACK_RIGHT);
+   }
+#else
+   // swap image back buffer for right buffer rendering
+   if (stereo && images.image_mask & __DRI_IMAGE_BUFFER_BACK) {
+      drawable->w = images.back->width;
+      drawable->h = images.back->height;
+      back_rb = brw_get_renderbuffer(fb, BUFFER_BACK_RIGHT);
+      brw_update_image_buffer(brw, drawable, back_rb, images.back,
+                              __DRI_IMAGE_BUFFER_BACK);
+   }
+#endif
 
    if (images.image_mask & __DRI_IMAGE_BUFFER_SHARED) {
       assert(images.image_mask == __DRI_IMAGE_BUFFER_SHARED);
