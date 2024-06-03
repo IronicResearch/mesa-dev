@@ -455,15 +455,8 @@ driGetConfigAttribIndex(const __DRIconfig *config,
     case __DRI_ATTRIB_CONFORMANT:
         *value = GL_TRUE;
         break;
-#if 1
     __ATTRIB(__DRI_ATTRIB_DOUBLE_BUFFER,		doubleBufferMode);
     __ATTRIB(__DRI_ATTRIB_STEREO,			stereoMode);
-#else
-    case __DRI_ATTRIB_STEREO:
-    case __DRI_ATTRIB_DOUBLE_BUFFER:
-        *value = config->modes.doubleBufferMode;
-        break;
-#endif
     case __DRI_ATTRIB_TRANSPARENT_TYPE:
     case __DRI_ATTRIB_TRANSPARENT_INDEX_VALUE: /* horrible bc hack */
         *value = GLX_NONE;

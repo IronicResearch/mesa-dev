@@ -1568,9 +1568,8 @@ brw_update_renderbuffers(__DRIcontext *context, __DRIdrawable *drawable)
 {
    struct brw_context *brw = context->driverPrivate;
    __DRIscreen *dri_screen = brw->screen->driScrnPriv;
-   struct gl_context *ctx = &brw->ctx;
-   bool stereo = ctx->Visual.stereoMode;
-
+   //struct gl_context *ctx = &brw->ctx;
+   //bool stereo = ctx->Visual.stereoMode;
 
    /* Set this up front, so that in case our buffers get invalidated
     * while we're getting new buffers, we don't clobber the stamp and
@@ -1663,9 +1662,11 @@ brw_query_dri2_buffers(struct brw_context *brw,
    struct brw_renderbuffer *front_rb;
    struct brw_renderbuffer *back_rb;
 
+   struct gl_context *ctx = &brw->ctx;
+   bool stereo = ctx->Visual.stereoMode;
+
    front_rb = brw_get_renderbuffer(fb, BUFFER_FRONT_LEFT);
    back_rb = brw_get_renderbuffer(fb, BUFFER_BACK_LEFT);
-
 
    memset(attachments, 0, sizeof(attachments));
    if ((_mesa_is_front_buffer_drawing(fb) ||
@@ -1683,9 +1684,11 @@ brw_query_dri2_buffers(struct brw_context *brw,
       attachments[i++] = __DRI_BUFFER_FRONT_LEFT;
       attachments[i++] = brw_bits_per_pixel(front_rb);
 
-      front_rb = brw_get_renderbuffer(fb, BUFFER_FRONT_RIGHT);
-      attachments[i++] = __DRI_BUFFER_FRONT_RIGHT;
-      attachments[i++] = brw_bits_per_pixel(front_rb);
+      if (stereo) {
+         front_rb = brw_get_renderbuffer(fb, BUFFER_FRONT_RIGHT);
+         attachments[i++] = __DRI_BUFFER_FRONT_RIGHT;
+         attachments[i++] = brw_bits_per_pixel(front_rb);
+      }
    } else if (front_rb && brw->front_buffer_dirty) {
       /* We have pending front buffer rendering, but we aren't querying for a
        * front buffer.  If the front buffer we have is a fake front buffer,
@@ -1701,9 +1704,11 @@ brw_query_dri2_buffers(struct brw_context *brw,
       attachments[i++] = __DRI_BUFFER_BACK_LEFT;
       attachments[i++] = brw_bits_per_pixel(back_rb);
 
-      back_rb = brw_get_renderbuffer(fb, BUFFER_BACK_RIGHT);
-      attachments[i++] = __DRI_BUFFER_BACK_RIGHT;
-      attachments[i++] = brw_bits_per_pixel(back_rb);
+      if (stereo) {
+         back_rb = brw_get_renderbuffer(fb, BUFFER_BACK_RIGHT);
+         attachments[i++] = __DRI_BUFFER_BACK_RIGHT;
+         attachments[i++] = brw_bits_per_pixel(back_rb);
+      }
    }
 
    assert(i <= ARRAY_SIZE(attachments));

@@ -2476,16 +2476,6 @@ find_value_indexed(const char *func, GLenum pname, GLuint index, union value *v)
    struct gl_buffer_object *buf;
 
    switch (pname) {
-
-#if 0 // find_value() actually works..
-   case GL_STEREO:
-      v->value_int = ctx->Visual.stereoMode || getenv("MESA_GLX_FORCE_STEREO");
-      return TYPE_INT;
-   case GL_DOUBLEBUFFER:
-      v->value_int = ctx->Visual.doubleBufferMode;
-      return TYPE_INT;
-#endif
-
    case GL_BLEND:
       if (index >= ctx->Const.MaxDrawBuffers)
          goto invalid_value;

@@ -252,7 +252,6 @@ brw_clear(struct gl_context *ctx, GLbitfield mask)
       brw->front_buffer_dirty = true;
    }
 
-
    brw_prepare_render(brw);
    brw_workaround_depthstencil_alignment(brw, partial_clear ? 0 : mask);
 
