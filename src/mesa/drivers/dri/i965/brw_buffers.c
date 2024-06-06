@@ -53,26 +53,11 @@ brw_drawbuffer(struct gl_context *ctx)
       // before switching to right stereo buffer,
       // like implicit glXSwapBuffers() call
       //    pdraw->psc->driScreen->swapBuffers(pdraw, 0, 0, 0, flush);
-
+#if 0
       __DRIdrawable *dri_drawable = brw->driContext->driDrawablePriv;
       __DRIscreen *dri_screen = brw->driContext->driScreenPriv;
 
-      //__DRIcontext *driContext = intel->driContext;
-      //__DRIdrawable *driDrawable = driContext->driDrawablePriv;
-      //__DRIscreen *const screen = intel->intelScreen->driScrnPriv;
-      //__DRIscreen *const dri_screen = brw->screen->driScrnPriv; 
-      //    void (*flushSwapBuffers)(__DRIdrawable *driDrawable, void *loaderPrivate);
-
-      //FIXME: crashes
-      //if (dri_drawable && dri_screen && dri_screen->driver)
-      //   dri_screen->driver->SwapBuffers(dri_drawable);
-
-      //FIXME: uncompilable
-      //if (dri_screen && dri_screen->driScreen)
-      //   dri_screen->driScreen->swapBuffers(dri_drawable, 0, 0, 0, true);
-
-#if 0
-      //FIXME: hangs
+      //FIXME: hangs on mutex lockup
       if (dri_screen != NULL && dri_screen->image.loader->flushSwapBuffers != NULL)
          dri_screen->image.loader->flushSwapBuffers(dri_drawable, dri_screen->loaderPrivate);
 #endif

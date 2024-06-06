@@ -1568,8 +1568,8 @@ brw_update_renderbuffers(__DRIcontext *context, __DRIdrawable *drawable)
 {
    struct brw_context *brw = context->driverPrivate;
    __DRIscreen *dri_screen = brw->screen->driScrnPriv;
-   struct gl_context *ctx = &brw->ctx;
-   bool stereo = ctx->Visual.stereoMode;
+   //struct gl_context *ctx = &brw->ctx;
+   //bool stereo = ctx->Visual.stereoMode;
 
    /* Set this up front, so that in case our buffers get invalidated
     * while we're getting new buffers, we don't clobber the stamp and
@@ -2008,25 +2008,6 @@ brw_update_image_buffers(struct brw_context *brw, __DRIdrawable *drawable)
                               __DRI_IMAGE_BUFFER_BACK);
       }
    }
-
-#if 0 // FIXME: __DRI_IMAGE_BUFFER_BACK_RIGHT
-   if (images.image_mask & __DRI_IMAGE_BUFFER_BACK_RIGHT) {
-      drawable->w = images.back->width;
-      drawable->h = images.back->height;
-      back_rb = brw_get_renderbuffer(fb, BUFFER_BACK_RIGHT);
-      brw_update_image_buffer(brw, drawable, back_rb, images.back,
-                              __DRI_IMAGE_BUFFER_BACK_RIGHT);
-   }
-#elif 0
-   // swap image back buffer for right buffer rendering
-   if (stereo && images.image_mask & __DRI_IMAGE_BUFFER_BACK) {
-      drawable->w = images.back->width;
-      drawable->h = images.back->height;
-      back_rb = brw_get_renderbuffer(fb, BUFFER_BACK_RIGHT);
-      brw_update_image_buffer(brw, drawable, back_rb, images.back,
-                              __DRI_IMAGE_BUFFER_BACK);
-   }
-#endif
 
    if (images.image_mask & __DRI_IMAGE_BUFFER_SHARED) {
       assert(images.image_mask == __DRI_IMAGE_BUFFER_SHARED);
