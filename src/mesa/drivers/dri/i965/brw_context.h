@@ -1284,6 +1284,8 @@ GLboolean brw_create_context(gl_api api,
                              unsigned *error,
                              void *sharedContextPrivate);
 
+extern void brw_glFlush(struct gl_context *ctx, unsigned gallium_flush_flags);
+
 /*======================================================================
  * brw_misc_state.c
  */

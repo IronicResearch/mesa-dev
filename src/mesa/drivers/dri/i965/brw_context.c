@@ -293,7 +293,7 @@ brw_display_shared_buffer(struct brw_context *brw)
    brw->is_shared_buffer_dirty = false;
 }
 
-static void
+/* static */ void
 brw_glFlush(struct gl_context *ctx, unsigned gallium_flush_flags)
 {
    struct brw_context *brw = brw_context(ctx);
@@ -1568,8 +1568,8 @@ brw_update_renderbuffers(__DRIcontext *context, __DRIdrawable *drawable)
 {
    struct brw_context *brw = context->driverPrivate;
    __DRIscreen *dri_screen = brw->screen->driScrnPriv;
-   //struct gl_context *ctx = &brw->ctx;
-   //bool stereo = ctx->Visual.stereoMode;
+   struct gl_context *ctx = &brw->ctx;
+   bool stereo = ctx->Visual.stereoMode;
 
    /* Set this up front, so that in case our buffers get invalidated
     * while we're getting new buffers, we don't clobber the stamp and
@@ -1956,6 +1956,7 @@ brw_update_image_buffers(struct brw_context *brw, __DRIdrawable *drawable)
 
    struct gl_context *ctx = &brw->ctx;
    bool stereo = ctx->Visual.stereoMode;
+   static bool swap = false;
 
    front_rb = brw_get_renderbuffer(fb, BUFFER_FRONT_LEFT);
    back_rb = brw_get_renderbuffer(fb, BUFFER_BACK_LEFT);
@@ -1991,11 +1992,21 @@ brw_update_image_buffers(struct brw_context *brw, __DRIdrawable *drawable)
                               __DRI_IMAGE_BUFFER_FRONT);
    }
 
+   // FIXME: need to validate both stereo render buffers
+   // even if only one back image buffer is used at a time
+
    if (images.image_mask & __DRI_IMAGE_BUFFER_BACK) {
       drawable->w = images.back->width;
       drawable->h = images.back->height;
       brw_update_image_buffer(brw, drawable, back_rb, images.back,
                               __DRI_IMAGE_BUFFER_BACK);
+      if (stereo)
+         swap = !swap;
+      if (stereo && swap) {
+         back_rb = brw_get_renderbuffer(fb, BUFFER_BACK_RIGHT);
+         brw_update_image_buffer(brw, drawable, back_rb, images.back,
+                              __DRI_IMAGE_BUFFER_BACK);
+      }
    }
 
 #if 0 // FIXME: __DRI_IMAGE_BUFFER_BACK_RIGHT
@@ -2006,7 +2017,7 @@ brw_update_image_buffers(struct brw_context *brw, __DRIdrawable *drawable)
       brw_update_image_buffer(brw, drawable, back_rb, images.back,
                               __DRI_IMAGE_BUFFER_BACK_RIGHT);
    }
-#else
+#elif 0
    // swap image back buffer for right buffer rendering
    if (stereo && images.image_mask & __DRI_IMAGE_BUFFER_BACK) {
       drawable->w = images.back->width;
