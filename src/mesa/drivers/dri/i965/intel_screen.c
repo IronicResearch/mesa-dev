@@ -1020,6 +1020,16 @@ intelCreateBuffer(__DRIscreen * driScrnPriv,
       _mesa_add_renderbuffer(fb, BUFFER_BACK_LEFT, &rb->Base.Base);
    }
 
+//   if (getenv("MESA_GLX_FORCE_STEREO"))
+//       mesaVis->stereoMode = GL_TRUE;
+
+   if (mesaVis->stereoMode || getenv("MESA_GLX_FORCE_STEREO")) {
+      rb = intel_create_renderbuffer(rgbFormat, num_samples);
+      _mesa_add_renderbuffer(fb, BUFFER_FRONT_RIGHT, &rb->Base.Base);
+      rb = intel_create_renderbuffer(rgbFormat, num_samples);
+      _mesa_add_renderbuffer(fb, BUFFER_BACK_BACK, &rb->Base.Base);
+   }
+
    /*
     * Assert here that the gl_config has an expected depth/stencil bit
     * combination: one of d24/s8, d16/s0, d0/s0. (See intelInitScreen2(),
@@ -1217,6 +1227,9 @@ intel_screen_make_configs(__DRIscreen *dri_screen)
    const struct brw_device_info *devinfo = screen->devinfo;
    uint8_t depth_bits[4], stencil_bits[4];
    __DRIconfig **configs = NULL;
+
+//   if (getenv("MESA_GLX_FORCE_STEREO"))
+//      back_buffer_modes[1] = __DRI_ATTRIB_SWAP_EXCHANGE;
 
    /* Generate singlesample configs without accumulation buffer. */
    for (unsigned i = 0; i < ARRAY_SIZE(formats); i++) {
@@ -1524,7 +1537,9 @@ intelAllocateBuffer(__DRIscreen *screen,
    struct intel_screen *intelScreen = screen->driverPrivate;
 
    assert(attachment == __DRI_BUFFER_FRONT_LEFT ||
-          attachment == __DRI_BUFFER_BACK_LEFT);
+          attachment == __DRI_BUFFER_BACK_LEFT ||
+          attachment == __DRI_BUFFER_BACK_RIGHT ||
+          attachment == __DRI_BUFFER_FRONT_RIGHT);
 
    intelBuffer = calloc(1, sizeof *intelBuffer);
    if (intelBuffer == NULL)
@@ -1598,3 +1613,67 @@ PUBLIC const __DRIextension **__driDriverGetExtensions_i965(void)
 
    return brw_driver_extensions;
 }
+
+#if 0
+--- a/src/mesa/drivers/dri/i965/brw_screen.c
++++ b/src/mesa/drivers/dri/i965/brw_screen.c
+@@ -1825,6 +1825,18 @@ brw_create_buffer(__DRIscreen *dri_screen,
+       rb->need_srgb = srgb_cap_set;
+    }
+ 
++//   if (getenv("MESA_GLX_FORCE_STEREO"))
++//       mesaVis->stereoMode = GL_TRUE;
++
++   if (mesaVis->stereoMode || getenv("MESA_GLX_FORCE_STEREO")) {
++      rb = brw_create_winsys_renderbuffer(screen, rgbFormat, num_samples);
++      _mesa_attach_and_own_rb(fb, BUFFER_FRONT_RIGHT, &rb->Base.Base);
++      rb->need_srgb = srgb_cap_set;
++      rb = brw_create_winsys_renderbuffer(screen, rgbFormat, num_samples);
++      _mesa_attach_and_own_rb(fb, BUFFER_BACK_RIGHT, &rb->Base.Base);
++      rb->need_srgb = srgb_cap_set;
++   }
++
+    /*
+     * Assert here that the gl_config has an expected depth/stencil bit
+     * combination: one of d24/s8, d16/s0, d0/s0. (See brw_init_screen(),
+@@ -2235,7 +2247,7 @@ brw_screen_make_configs(__DRIscreen *dri_screen)
+    };
+ 
+    /* __DRI_ATTRIB_SWAP_COPY is not supported due to page flipping. */
+-   static const GLenum back_buffer_modes[] = {
++   static /* const */ GLenum back_buffer_modes[] = {
+       __DRI_ATTRIB_SWAP_UNDEFINED, __DRI_ATTRIB_SWAP_NONE
+    };
+ 
+@@ -2248,6 +2260,9 @@ brw_screen_make_configs(__DRIscreen *dri_screen)
+ 
+    unsigned num_formats = ARRAY_SIZE(formats);
+ 
++//   if (getenv("MESA_GLX_FORCE_STEREO"))
++//      back_buffer_modes[1] = __DRI_ATTRIB_SWAP_EXCHANGE;
++
+    /* Generate singlesample configs, each without accumulation buffer
+     * and with EGL_MUTABLE_RENDER_BUFFER_BIT_KHR.
+     */
+@@ -2825,6 +2840,7 @@ __DRIconfig **brw_init_screen(__DRIscreen *dri_screen)
+ 
+    brw_disk_cache_init(screen);
+ 
++
+    return (const __DRIconfig**) brw_screen_make_configs(dri_screen);
+ }
+ 
+@@ -2841,7 +2857,9 @@ brw_allocate_buffer(__DRIscreen *dri_screen,
+    struct brw_screen *screen = dri_screen->driverPrivate;
+ 
+    assert(attachment == __DRI_BUFFER_FRONT_LEFT ||
+-          attachment == __DRI_BUFFER_BACK_LEFT);
++          attachment == __DRI_BUFFER_BACK_LEFT ||
++          attachment == __DRI_BUFFER_BACK_RIGHT ||
++          attachment == __DRI_BUFFER_FRONT_RIGHT);
+ 
+    struct brw_buffer *buffer = calloc(1, sizeof *buffer);
+    if (buffer == NULL)
+
+#endif
+
