@@ -1328,6 +1328,8 @@ struct brw_context
    struct intel_screen *intelScreen;
 };
 
+extern void brw_glFlush(struct gl_context *ctx, unsigned gallium_flush_flags);
+
 /*======================================================================
  * brw_vtbl.c
  */

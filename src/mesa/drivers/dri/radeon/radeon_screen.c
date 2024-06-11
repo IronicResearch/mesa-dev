@@ -691,6 +691,8 @@ radeonCreateBuffer( __DRIscreen *driScrnPriv,
 	rfb->color_rb[1]->has_surface = 1;
     }
 
+    // TODO
+    
     if (mesaVis->depthBits == 24) {
       if (mesaVis->stencilBits == 8) {
 	struct radeon_renderbuffer *depthStencilRb =
