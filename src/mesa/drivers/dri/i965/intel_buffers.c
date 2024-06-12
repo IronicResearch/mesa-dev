@@ -60,7 +60,7 @@ intelDrawBuffer(struct gl_context * ctx, GLenum mode)
       if (dri_screen != NULL && dri_screen->image.loader->flushSwapBuffers != NULL)
          dri_screen->image.loader->flushSwapBuffers(dri_drawable, dri_screen->loaderPrivate);
 #endif
-      intel_glFlush(ctx, 0);
+      intel_glFlush(ctx);
 
       intel_prepare_render(brw);
    }

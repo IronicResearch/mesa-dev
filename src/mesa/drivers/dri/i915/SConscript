@@ -1,0 +1,36 @@
+###################################
+# SConscript file for dri targets
+
+Import('*')
+
+#
+# dri_i915
+#
+env = env.Clone()
+
+env.Append(CPPPATH = [
+    '/usr/include/libdrm',
+    '#/include',
+    '#/src/',
+    '#/src/mapi',
+    '#/src/mesa',
+    '#/src/mesa/drivers/dri/common',
+    xmlpool_options.dir.dir, # Dir to generated xmlpool/options.h
+])
+
+env.Append(CPPDEFINES = [
+    'HAVE_DLADDR',
+])
+
+sources = env.ParseSourceList('Makefile.sources', 'i915_FILES')
+
+dri_i915 = env.ConvenienceLibrary(
+	target = 'dri_i915',
+	source = sources,
+)
+
+env.Alias('dri_i915', dri_i915)
+
+Export([
+    'dri_i915',
+])

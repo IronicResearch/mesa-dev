@@ -1027,7 +1027,7 @@ intelCreateBuffer(__DRIscreen * driScrnPriv,
       rb = intel_create_renderbuffer(rgbFormat, num_samples);
       _mesa_add_renderbuffer(fb, BUFFER_FRONT_RIGHT, &rb->Base.Base);
       rb = intel_create_renderbuffer(rgbFormat, num_samples);
-      _mesa_add_renderbuffer(fb, BUFFER_BACK_BACK, &rb->Base.Base);
+      _mesa_add_renderbuffer(fb, BUFFER_BACK_RIGHT, &rb->Base.Base);
    }
 
    /*

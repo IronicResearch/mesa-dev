@@ -1,0 +1,38 @@
+###################################
+# SConscript file for dri targets
+
+Import('*')
+
+#
+# dri_radeon
+#
+env = env.Clone()
+
+env.Append(CPPPATH = [
+    '/usr/include/libdrm',
+    '#/include',
+    '#/src/',
+    '#/src/mapi',
+    '#/src/mesa',
+    '#/src/mesa/drivers/dri/common',
+    '#/src/mesa/drivers/dri/radeon/server',
+    xmlpool_options.dir.dir, # Dir to generated xmlpool/options.h
+])
+
+env.Append(CPPDEFINES = [
+    'HAVE_DLADDR',
+    'RADEON_R100',
+])
+
+sources = env.ParseSourceList('Makefile.sources', 'RADEON_C_FILES')
+
+dri_radeon = env.ConvenienceLibrary(
+	target = 'dri_radeon',
+	source = sources,
+)
+
+env.Alias('dri_radeon', dri_radeon)
+
+Export([
+    'dri_radeon',
+])
