@@ -13,7 +13,7 @@ env.Prepend(CPPPATH = [
     '#src/gallium/auxiliary',
 ])
 
-sources = env.ParseSourceList('Makefile.sources', 'LIBCOMPILER_FILES')
+sources = env.ParseSourceList('Makefile.sources', ['LIBCOMPILER_FILES','NIR_FILES','NIR_GENERATED_FILES'])
 
 compiler = env.ConvenienceLibrary(
     target = 'compiler',

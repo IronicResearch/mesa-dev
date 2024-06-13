@@ -22,12 +22,41 @@ env.Append(CPPDEFINES = [
     'HAVE_DLADDR',
 ])
 
-sources = env.ParseSourceList('Makefile.sources', 'i965_FILES')
+env.Prepend(LIBS = [
+    #st_dri,
+    #svgadrm,
+    #svga,
+    #ws_dri,
+    #softpipe,
+    #pipe_loader,
+    libloader,
+    mesautil,
+    compiler,
+    mesa,
+    glsl,
+    #gallium,
+    megadrivers_stub,
+    dri_common,
+])
 
-dri_i965 = env.ConvenienceLibrary(
-	target = 'dri_i965',
+env.Append(LIBS = ['drm','drm_intel','expat'])
+env.Append(LIBPATH = ['/usr/lib/i386-linux-gnu'])
+
+sources = env.ParseSourceList('Makefile.sources', ['i965_FILES','i965_compiler_FILES'])
+
+dri_i965 = env.SharedLibrary(
+	target = 'i965_dri.so',
 	source = sources,
+	SHLIBPREFIX = '',
+	#LIBS = ['compiler', 'glsl', 'dri_common'],
+	#LIBPATH = ['#build/linux-x86-debug/compiler', '#build/linux-x86-debug/compiler/glsl', '#build/linux-x86-debug/mesa/drivers/dri/common'],
 )
+
+#dri_i965 = env.LoadableModule(
+#    target = 'i965_dri.so',
+#    source = sources,
+#    SHLIBPREFIX = '',
+#)
 
 env.Alias('dri_i965', dri_i965)
 
