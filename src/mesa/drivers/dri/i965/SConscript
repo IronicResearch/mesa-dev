@@ -22,23 +22,18 @@ env.Append(CPPDEFINES = [
     'HAVE_DLADDR',
 ])
 
+# LIBS to link driver for local Mesa imports
 env.Prepend(LIBS = [
-    #st_dri,
-    #svgadrm,
-    #svga,
-    #ws_dri,
-    #softpipe,
-    #pipe_loader,
     libloader,
     mesautil,
     compiler,
     mesa,
     glsl,
-    #gallium,
     megadrivers_stub,
     dri_common,
 ])
 
+# LIBS to link driver for DRM platform imports
 env.Append(LIBS = ['drm','drm_intel','expat'])
 env.Append(LIBPATH = ['/usr/lib/i386-linux-gnu'])
 
@@ -48,15 +43,7 @@ dri_i965 = env.SharedLibrary(
 	target = 'i965_dri.so',
 	source = sources,
 	SHLIBPREFIX = '',
-	#LIBS = ['compiler', 'glsl', 'dri_common'],
-	#LIBPATH = ['#build/linux-x86-debug/compiler', '#build/linux-x86-debug/compiler/glsl', '#build/linux-x86-debug/mesa/drivers/dri/common'],
 )
-
-#dri_i965 = env.LoadableModule(
-#    target = 'i965_dri.so',
-#    source = sources,
-#    SHLIBPREFIX = '',
-#)
 
 env.Alias('dri_i965', dri_i965)
 
