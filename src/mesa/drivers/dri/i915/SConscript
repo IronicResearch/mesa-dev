@@ -37,9 +37,9 @@ env.Prepend(LIBS = [
 
 # LIBS to link driver for DRM platform imports
 env.Append(LIBS = ['drm','drm_intel','expat'])
-env.Append(LIBPATH = ['/usr/lib/i386-linux-gnu'])
-libpath = ''
-env.Command(target = libpath, source = 'libdrm', action = "pkg-config --variable=libdir $SOURCE > $TARGET")
+#env.Append(LIBPATH = ['/usr/lib/i386-linux-gnu'])
+#libpath = ''
+#env.Command(target = libpath, source = 'libdrm', action = "pkg-config --variable=libdir $SOURCE > $TARGET")
 libpath = os.popen("pkg-config --variable=libdir libdrm").read()
 libpath = libpath.strip('\n')
 env.Prepend(LIBPATH = libpath)
