@@ -154,6 +154,8 @@ struct intel_screen
 #define intel_miptree_create_for_image_buffer old_intel_miptree_create_for_image_buffer
 #define intelFenceExtension                 old_intelFenceExtension
 
+extern void intelDRI2Flush(__DRIdrawable *drawable);
+
 extern void intelDestroyContext(__DRIcontext * driContextPriv);
 
 extern GLboolean intelUnbindContext(__DRIcontext * driContextPriv);
