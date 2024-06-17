@@ -396,12 +396,20 @@ radeon_update_renderbuffers(__DRIcontext *context, __DRIdrawable *drawable,
                     && draw->color_rb[0]) {
 			attachments[i++] = __DRI_BUFFER_FRONT_LEFT;
 			attachments[i++] = radeon_bits_per_pixel(draw->color_rb[0]);
+			if (draw->color_rb[2]) {
+				attachments[i++] = __DRI_BUFFER_FRONT_RIGHT;
+				attachments[i++] = radeon_bits_per_pixel(draw->color_rb[2]);
+			}
 		}
 
 		if (!front_only) {
 			if (draw->color_rb[1]) {
 				attachments[i++] = __DRI_BUFFER_BACK_LEFT;
 				attachments[i++] = radeon_bits_per_pixel(draw->color_rb[1]);
+			}
+			if (draw->color_rb[3]) {
+				attachments[i++] = __DRI_BUFFER_BACK_RIGHT;
+				attachments[i++] = radeon_bits_per_pixel(draw->color_rb[3]);
 			}
 
 			depth_rb = radeon_get_renderbuffer(&draw->base, BUFFER_DEPTH);
@@ -429,9 +437,13 @@ radeon_update_renderbuffers(__DRIcontext *context, __DRIdrawable *drawable,
 		i = 0;
 		if (draw->color_rb[0])
 			attachments[i++] = __DRI_BUFFER_FRONT_LEFT;
+		if (draw->color_rb[2])
+			attachments[i++] = __DRI_BUFFER_FRONT_RIGHT;
 		if (!front_only) {
 			if (draw->color_rb[1])
 				attachments[i++] = __DRI_BUFFER_BACK_LEFT;
+			if (draw->color_rb[3])
+				attachments[i++] = __DRI_BUFFER_BACK_RIGHT;
 			if (radeon_get_renderbuffer(&draw->base, BUFFER_DEPTH))
 				attachments[i++] = __DRI_BUFFER_DEPTH;
 			if (radeon_get_renderbuffer(&draw->base, BUFFER_STENCIL))
@@ -459,9 +471,17 @@ radeon_update_renderbuffers(__DRIcontext *context, __DRIdrawable *drawable,
 			rb = draw->color_rb[0];
 			regname = "dri2 fake front buffer";
 			break;
+		case __DRI_BUFFER_FRONT_RIGHT:
+			rb = draw->color_rb[2];
+			regname = "dri2 front right buffer";
+			break;
 		case __DRI_BUFFER_BACK_LEFT:
 			rb = draw->color_rb[1];
 			regname = "dri2 back buffer";
+			break;
+		case __DRI_BUFFER_BACK_RIGHT:
+			rb = draw->color_rb[3];
+			regname = "dri2 back right buffer";
 			break;
 		case __DRI_BUFFER_DEPTH:
 			rb = radeon_get_renderbuffer(&draw->base, BUFFER_DEPTH);

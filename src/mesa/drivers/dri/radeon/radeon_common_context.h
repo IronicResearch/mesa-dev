@@ -104,7 +104,7 @@ struct radeon_framebuffer
 {
 	struct gl_framebuffer base;
 
-	struct radeon_renderbuffer *color_rb[2];
+	struct radeon_renderbuffer *color_rb[4];
 };
 
 
