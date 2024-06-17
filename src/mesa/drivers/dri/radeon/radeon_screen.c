@@ -772,21 +772,21 @@ static void radeon_cleanup_renderbuffers(struct radeon_framebuffer *rfb)
 		radeon_bo_unref(rb->bo);
 		rb->bo = NULL;
 	}
-  rb = rfb->color_rb[1];
-  if (rb && rb->bo) {
-    radeon_bo_unref(rb->bo);
-    rb->bo = NULL;
-  }
-  rb = rfb->color_rb[2];
-  if (rb && rb->bo) {
-    radeon_bo_unref(rb->bo);
-    rb->bo = NULL;
-  }
-  rb = rfb->color_rb[3];
-  if (rb && rb->bo) {
-    radeon_bo_unref(rb->bo);
-    rb->bo = NULL;
-  }
+	rb = rfb->color_rb[1];
+	if (rb && rb->bo) {
+		radeon_bo_unref(rb->bo);
+		rb->bo = NULL;
+	}
+	rb = rfb->color_rb[2];
+	if (rb && rb->bo) {
+		radeon_bo_unref(rb->bo);
+		rb->bo = NULL;
+	}
+	rb = rfb->color_rb[3];
+	if (rb && rb->bo) {
+		radeon_bo_unref(rb->bo);
+		rb->bo = NULL;
+	}
 	rb = radeon_get_renderbuffer(&rfb->base, BUFFER_DEPTH);
 	if (rb && rb->bo) {
 		radeon_bo_unref(rb->bo);
