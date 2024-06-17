@@ -1568,8 +1568,6 @@ brw_update_renderbuffers(__DRIcontext *context, __DRIdrawable *drawable)
 {
    struct brw_context *brw = context->driverPrivate;
    __DRIscreen *dri_screen = brw->screen->driScrnPriv;
-   //struct gl_context *ctx = &brw->ctx;
-   //bool stereo = ctx->Visual.stereoMode;
 
    /* Set this up front, so that in case our buffers get invalidated
     * while we're getting new buffers, we don't clobber the stamp and
@@ -1961,6 +1959,13 @@ brw_update_image_buffers(struct brw_context *brw, __DRIdrawable *drawable)
    front_rb = brw_get_renderbuffer(fb, BUFFER_FRONT_LEFT);
    back_rb = brw_get_renderbuffer(fb, BUFFER_BACK_LEFT);
 
+   if (stereo)
+      swap = !swap;
+   if (stereo && swap) {
+      back_rb = brw_get_renderbuffer(fb, BUFFER_BACK_RIGHT);
+      front_rb = brw_get_renderbuffer(fb, BUFFER_FRONT_RIGHT);
+   }
+
    if (back_rb)
       format = brw_rb_format(back_rb);
    else if (front_rb)
@@ -2000,13 +2005,6 @@ brw_update_image_buffers(struct brw_context *brw, __DRIdrawable *drawable)
       drawable->h = images.back->height;
       brw_update_image_buffer(brw, drawable, back_rb, images.back,
                               __DRI_IMAGE_BUFFER_BACK);
-      if (stereo)
-         swap = !swap;
-      if (stereo && swap) {
-         back_rb = brw_get_renderbuffer(fb, BUFFER_BACK_RIGHT);
-         brw_update_image_buffer(brw, drawable, back_rb, images.back,
-                              __DRI_IMAGE_BUFFER_BACK);
-      }
    }
 
    if (images.image_mask & __DRI_IMAGE_BUFFER_SHARED) {
