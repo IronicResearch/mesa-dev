@@ -181,7 +181,7 @@ brw_dri2_flush_with_flags(__DRIcontext *cPriv,
  *
  * That includes libGL up to Mesa 9.0, and the X Server at least up to 1.13.
  */
-static void
+/* static */ void
 brw_dri2_flush(__DRIdrawable *drawable)
 {
    brw_dri2_flush_with_flags(drawable->driContextPriv, drawable,

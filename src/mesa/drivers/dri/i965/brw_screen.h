@@ -167,6 +167,8 @@ can_do_exec_capture(const struct brw_screen *screen)
    return screen->kernel_features & KERNEL_ALLOWS_EXEC_CAPTURE;
 }
 
+extern void brw_dri2_flush(__DRIdrawable *drawable);
+
 #ifdef __cplusplus
 }
 #endif

@@ -53,15 +53,17 @@ brw_drawbuffer(struct gl_context *ctx)
       // before switching to right stereo buffer,
       // like implicit glXSwapBuffers() call
       //    pdraw->psc->driScreen->swapBuffers(pdraw, 0, 0, 0, flush);
-#if 0
+#if 1
       __DRIdrawable *dri_drawable = brw->driContext->driDrawablePriv;
       __DRIscreen *dri_screen = brw->driContext->driScreenPriv;
 
       //FIXME: hangs on mutex lockup
-      if (dri_screen != NULL && dri_screen->image.loader->flushSwapBuffers != NULL)
-         dri_screen->image.loader->flushSwapBuffers(dri_drawable, dri_screen->loaderPrivate);
-#endif
+      //if (dri_screen != NULL && dri_screen->image.loader->flushSwapBuffers != NULL)
+      //   dri_screen->image.loader->flushSwapBuffers(dri_drawable, dri_screen->loaderPrivate);
+      brw_dri2_flush(dri_drawable);
+#else
       brw_glFlush(ctx, 0);
+#endif
 
       brw_prepare_render(brw);
    }
