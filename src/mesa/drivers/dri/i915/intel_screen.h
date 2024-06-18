@@ -157,6 +157,8 @@ struct intel_screen
 #define intel_renderbuffer_set_draw_offset  old_intel_renderbuffer_set_draw_offset
 #define intel_miptree_create_for_image_buffer old_intel_miptree_create_for_image_buffer
 
+extern void intelDRI2Flush(__DRIdrawable *drawable);
+
 extern void intelDestroyContext(__DRIcontext * driContextPriv);
 
 extern GLboolean intelUnbindContext(__DRIcontext * driContextPriv);

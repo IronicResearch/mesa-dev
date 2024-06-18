@@ -83,6 +83,8 @@ struct intel_screen
    int cmd_parser_version;
  };
 
+extern void intel_dri2_flush(__DRIdrawable *drawable);
+
 extern void intelDestroyContext(__DRIcontext * driContextPriv);
 
 extern GLboolean intelUnbindContext(__DRIcontext * driContextPriv);

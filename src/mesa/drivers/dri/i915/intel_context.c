@@ -172,9 +172,19 @@ intel_update_dri2_buffers(struct intel_context *intel, __DRIdrawable *drawable)
          region_name = "dri2 fake front buffer";
          break;
 
+      case __DRI_BUFFER_FRONT_RIGHT:
+         rb = intel_get_renderbuffer(fb, BUFFER_FRONT_RIGHT);
+         region_name = "dri2 front right buffer";
+         break;
+
       case __DRI_BUFFER_BACK_LEFT:
          rb = intel_get_renderbuffer(fb, BUFFER_BACK_LEFT);
          region_name = "dri2 back buffer";
+         break;
+
+      case __DRI_BUFFER_BACK_RIGHT:
+         rb = intel_get_renderbuffer(fb, BUFFER_BACK_RIGHT);
+         region_name = "dri2 back right buffer";
          break;
 
       case __DRI_BUFFER_DEPTH:
@@ -699,6 +709,9 @@ intel_query_dri2_buffers(struct intel_context *intel,
    struct intel_renderbuffer *front_rb;
    struct intel_renderbuffer *back_rb;
 
+   struct gl_context *ctx = &intel->ctx;
+   bool stereo = ctx->Visual.stereoMode;
+
    front_rb = intel_get_renderbuffer(fb, BUFFER_FRONT_LEFT);
    back_rb = intel_get_renderbuffer(fb, BUFFER_BACK_LEFT);
 
@@ -717,6 +730,11 @@ intel_query_dri2_buffers(struct intel_context *intel,
 
       attachments[i++] = __DRI_BUFFER_FRONT_LEFT;
       attachments[i++] = intel_bits_per_pixel(front_rb);
+      if (stereo) {
+         front_rb = intel_get_renderbuffer(fb, BUFFER_FRONT_RIGHT);
+         attachments[i++] = __DRI_BUFFER_FRONT_RIGHT;
+         attachments[i++] = intel_bits_per_pixel(front_rb);
+      }
    } else if (front_rb && intel->front_buffer_dirty) {
       /* We have pending front buffer rendering, but we aren't querying for a
        * front buffer.  If the front buffer we have is a fake front buffer,
@@ -731,6 +749,11 @@ intel_query_dri2_buffers(struct intel_context *intel,
    if (back_rb) {
       attachments[i++] = __DRI_BUFFER_BACK_LEFT;
       attachments[i++] = intel_bits_per_pixel(back_rb);
+      if (stereo) {
+         back_rb = intel_get_renderbuffer(fb, BUFFER_BACK_RIGHT);
+         attachments[i++] = __DRI_BUFFER_BACK_RIGHT;
+         attachments[i++] = intel_bits_per_pixel(back_rb);
+      }
    }
 
    assert(i <= ARRAY_SIZE(attachments));
@@ -859,8 +882,19 @@ intel_update_image_buffers(struct intel_context *intel, __DRIdrawable *drawable)
    unsigned int format;
    uint32_t buffer_mask = 0;
 
+   struct gl_context *ctx = &intel->ctx;
+   bool stereo = ctx->Visual.stereoMode;
+   static bool swap = false;
+
    front_rb = intel_get_renderbuffer(fb, BUFFER_FRONT_LEFT);
    back_rb = intel_get_renderbuffer(fb, BUFFER_BACK_LEFT);
+
+   if (stereo)
+      swap = !swap;
+   if (stereo && swap) {
+      back_rb = intel_get_renderbuffer(fb, BUFFER_BACK_RIGHT);
+      front_rb = intel_get_renderbuffer(fb, BUFFER_FRONT_RIGHT);
+   }
 
    if (back_rb)
       format = intel_rb_format(back_rb);

@@ -149,7 +149,7 @@ static const __DRItexBufferExtension intelTexBufferExtension = {
    .releaseTexBuffer    = NULL,
 };
 
-static void
+/* static */ void
 intelDRI2Flush(__DRIdrawable *drawable)
 {
    GET_CURRENT_CONTEXT(ctx);
@@ -872,7 +872,14 @@ intelCreateBuffer(__DRIscreen * driScrnPriv,
       _mesa_add_renderbuffer(fb, BUFFER_BACK_LEFT, &rb->Base.Base);
    }
 
-   /*
+   if (mesaVis->stereoMode || getenv("MESA_GLX_FORCE_STEREO")) {
+      rb = intel_create_renderbuffer(rgbFormat);
+      _mesa_attach_and_own_rb(fb, BUFFER_FRONT_RIGHT, &rb->Base.Base);
+      rb = intel_create_renderbuffer(rgbFormat);
+      _mesa_attach_and_own_rb(fb, BUFFER_BACK_RIGHT, &rb->Base.Base);
+   }
+
+  /*
     * Assert here that the gl_config has an expected depth/stencil bit
     * combination: one of d24/s8, d16/s0, d0/s0. (See intelInitScreen2(),
     * which constructs the advertised configs.)
@@ -1206,7 +1213,9 @@ intelAllocateBuffer(__DRIscreen *screen,
    struct intel_screen *intelScreen = screen->driverPrivate;
 
    assert(attachment == __DRI_BUFFER_FRONT_LEFT ||
-          attachment == __DRI_BUFFER_BACK_LEFT);
+          attachment == __DRI_BUFFER_BACK_LEFT ||
+          attachment == __DRI_BUFFER_BACK_RIGHT ||
+          attachment == __DRI_BUFFER_FRONT_RIGHT);
 
    intelBuffer = calloc(1, sizeof *intelBuffer);
    if (intelBuffer == NULL)

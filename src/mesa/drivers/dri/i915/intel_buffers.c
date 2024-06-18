@@ -64,6 +64,16 @@ intelDrawBuffer(struct gl_context * ctx, GLenum mode)
        */
       dri2InvalidateDrawable(intel->driContext->driDrawablePriv);
    }
+   else if (ctx->Visual.stereoMode) {
+      struct intel_context *const intel = intel_context(ctx);
+
+      // FIXME: complete rendering left stereo buffer
+      // before switching to right stereo buffer,
+      // like implicit glXSwapBuffers() call
+      __DRIdrawable *dri_drawable = intel->driContext->driDrawablePriv;
+
+      intelDRI2Flush(dri_drawable);
+   }
 
    intel_draw_buffer(ctx);
 }

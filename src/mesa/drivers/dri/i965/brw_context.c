@@ -1651,6 +1651,13 @@ intel_update_image_buffers(struct brw_context *brw, __DRIdrawable *drawable)
       buffer_mask |= __DRI_IMAGE_BUFFER_FRONT;
    }
 
+   if (stereo)
+      swap = !swap;
+   if (stereo && swap) {
+      back_rb = brw_get_renderbuffer(fb, BUFFER_BACK_RIGHT);
+      front_rb = brw_get_renderbuffer(fb, BUFFER_FRONT_RIGHT);
+   }
+
    if (back_rb)
       buffer_mask |= __DRI_IMAGE_BUFFER_BACK;
 
@@ -1680,13 +1687,6 @@ intel_update_image_buffers(struct brw_context *brw, __DRIdrawable *drawable)
                                 back_rb,
                                 images.back,
                                 __DRI_IMAGE_BUFFER_BACK);
-      if (stereo)
-         swap = !swap;
-      if (stereo && swap) {
-         back_rb = intel_get_renderbuffer(fb, BUFFER_BACK_RIGHT);
-         intel_update_image_buffer(brw, drawable, back_rb, images.back,
-                              __DRI_IMAGE_BUFFER_BACK);
-      }
    }
 }
 
