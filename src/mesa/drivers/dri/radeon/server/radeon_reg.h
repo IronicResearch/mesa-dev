@@ -323,12 +323,16 @@
 #       define RADEON_CRTC2_H_TOTAL_SHIFT   0
 #       define RADEON_CRTC2_H_DISP          (0x01ff << 16)
 #       define RADEON_CRTC2_H_DISP_SHIFT    16
+#define RADEON_CRTC_OFFSET_RIGHT            0x0220
+#define RADEON_CRTC2_OFFSET_RIGHT           0x0320
 #define RADEON_CRTC_OFFSET                  0x0224
 #define RADEON_CRTC2_OFFSET                 0x0324
 #define RADEON_CRTC_OFFSET_CNTL             0x0228
 #       define RADEON_CRTC_TILE_EN          (1 << 15)
+#       define RADEON_CRTC_STEREO_EN        (1 << 17)
 #define RADEON_CRTC2_OFFSET_CNTL            0x0328
 #       define RADEON_CRTC2_TILE_EN         (1 << 15)
+#       define RADEON_CRTC2_STEREO_EN       (1 << 17)
 #define RADEON_CRTC_PITCH                   0x022c
 #define RADEON_CRTC2_PITCH                  0x032c
 #define RADEON_CRTC_STATUS                  0x005c
