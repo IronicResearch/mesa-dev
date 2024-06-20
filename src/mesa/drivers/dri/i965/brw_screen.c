@@ -172,6 +172,9 @@ brw_dri2_flush_with_flags(__DRIcontext *cPriv,
    if (reason == __DRI2_THROTTLE_FLUSHFRONT)
       brw->need_flush_throttle = true;
 
+   if (ctx->Visual.stereoMode && brw->need_swap_throttle)
+      brw_update_stereo_swap();
+
    brw_batch_flush(brw);
 }
 

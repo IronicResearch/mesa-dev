@@ -87,6 +87,18 @@
  * Mesa's Driver Functions
  ***************************************/
 
+static bool swap = false;
+
+void brw_update_stereo_swap(void)
+{
+   swap = !swap;
+}
+
+bool brw_get_stereo_swap(void)
+{
+   return swap;
+}
+
 const char *const brw_vendor_string = "Intel Open Source Technology Center";
 
 const char *
@@ -1428,7 +1440,10 @@ brw_resolve_for_dri2_flush(struct brw_context *brw,
 {
    const struct intel_device_info *devinfo = &brw->screen->devinfo;
 
-   if (devinfo->ver < 6) {
+   struct gl_context *ctx = &brw->ctx;
+   bool stereo = ctx->Visual.stereoMode;
+
+   if (devinfo->ver < 6 && !stereo) {
       /* MSAA and fast color clear are not supported, so don't waste time
        * checking whether a resolve is needed.
        */
@@ -1441,12 +1456,14 @@ brw_resolve_for_dri2_flush(struct brw_context *brw,
    /* Usually, only the back buffer will need to be downsampled. However,
     * the front buffer will also need it if the user has rendered into it.
     */
-   static const gl_buffer_index buffers[2] = {
+   static const gl_buffer_index buffers[4] = {
          BUFFER_BACK_LEFT,
          BUFFER_FRONT_LEFT,
+         BUFFER_BACK_RIGHT,
+         BUFFER_FRONT_RIGHT,
    };
 
-   for (int i = 0; i < 2; ++i) {
+   for (int i = 0; i < 4; ++i) {
       rb = brw_get_renderbuffer(fb, buffers[i]);
       if (rb == NULL || rb->mt == NULL)
          continue;
@@ -1954,13 +1971,10 @@ brw_update_image_buffers(struct brw_context *brw, __DRIdrawable *drawable)
 
    struct gl_context *ctx = &brw->ctx;
    bool stereo = ctx->Visual.stereoMode;
-   static bool swap = false;
 
    front_rb = brw_get_renderbuffer(fb, BUFFER_FRONT_LEFT);
    back_rb = brw_get_renderbuffer(fb, BUFFER_BACK_LEFT);
 
-   if (stereo)
-      swap = !swap;
    if (stereo && swap) {
       back_rb = brw_get_renderbuffer(fb, BUFFER_BACK_RIGHT);
       front_rb = brw_get_renderbuffer(fb, BUFFER_FRONT_RIGHT);
