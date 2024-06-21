@@ -725,6 +725,12 @@ brw_postdraw_set_buffers_need_resolve(struct brw_context *brw)
       front_irb->need_downsample = true;
    if (back_irb)
       back_irb->need_downsample = true;
+   if (ctx->Visual.stereoMode) {
+      front_irb = brw_get_renderbuffer(fb, BUFFER_FRONT_RIGHT);
+      front_irb->need_downsample = true;
+      back_irb = brw_get_renderbuffer(fb, BUFFER_BACK_RIGHT);
+      back_irb->need_downsample = true;
+   }
    if (depth_irb) {
       bool depth_written = brw_depth_writes_enabled(brw);
       if (depth_att->Layered) {

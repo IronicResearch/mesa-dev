@@ -1828,10 +1828,7 @@ brw_create_buffer(__DRIscreen *dri_screen,
       rb->need_srgb = srgb_cap_set;
    }
 
-//   if (getenv("MESA_GLX_FORCE_STEREO"))
-//       mesaVis->stereoMode = GL_TRUE;
-
-   if (mesaVis->stereoMode || getenv("MESA_GLX_FORCE_STEREO")) {
+   if (mesaVis->stereoMode) {
       rb = brw_create_winsys_renderbuffer(screen, rgbFormat, num_samples);
       _mesa_attach_and_own_rb(fb, BUFFER_FRONT_RIGHT, &rb->Base.Base);
       rb->need_srgb = srgb_cap_set;

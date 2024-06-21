@@ -1424,6 +1424,10 @@ brw_make_current(__DRIcontext *driContextPriv,
       if (!brw->ctx.ViewportInitialized)
          brw_prepare_render(brw);
 
+      // force miptree validation on stereo buffers
+      if (ctx->Visual.stereoMode)
+         brw_resolve_for_dri2_flush(brw, driDrawPriv);
+
       _mesa_make_current(ctx, fb, readFb);
    } else {
       GET_CURRENT_CONTEXT(ctx);
