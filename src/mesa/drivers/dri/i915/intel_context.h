@@ -357,6 +357,9 @@ extern void intelInitDriverFunctions(struct dd_function_table *functions);
 
 void intel_init_syncobj_functions(struct dd_function_table *functions);
 
+extern void intel_update_stereo_swap(void);
+extern bool intel_get_stereo_swap(void);
+
 
 /* ================================================================
  * intel_state.c:

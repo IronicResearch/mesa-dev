@@ -170,6 +170,9 @@ intelDRI2FlushWithFlags(__DRIcontext *context,
        reason == __DRI2_THROTTLE_FLUSHFRONT)
       intel->need_throttle = true;
 
+   if (ctx->Visual.stereoMode && intel->need_throttle)
+      intel_update_stereo_swap();
+
    if (intel->batch.used)
       intel_batchbuffer_flush(intel);
 
@@ -898,7 +901,7 @@ intelCreateBuffer(__DRIscreen * driScrnPriv,
       _mesa_attach_and_own_rb(fb, BUFFER_BACK_LEFT, &rb->Base.Base);
    }
 
-   if (mesaVis->stereoMode || getenv("MESA_GLX_FORCE_STEREO")) {
+   if (mesaVis->stereoMode) {
       rb = intel_create_renderbuffer(rgbFormat);
       _mesa_attach_and_own_rb(fb, BUFFER_FRONT_RIGHT, &rb->Base.Base);
       rb = intel_create_renderbuffer(rgbFormat);
