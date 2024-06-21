@@ -1654,8 +1654,8 @@ intel_update_image_buffers(struct brw_context *brw, __DRIdrawable *drawable)
    if (stereo)
       swap = !swap;
    if (stereo && swap) {
-      back_rb = brw_get_renderbuffer(fb, BUFFER_BACK_RIGHT);
-      front_rb = brw_get_renderbuffer(fb, BUFFER_FRONT_RIGHT);
+      back_rb = intel_get_renderbuffer(fb, BUFFER_BACK_RIGHT);
+      front_rb = intel_get_renderbuffer(fb, BUFFER_FRONT_RIGHT);
    }
 
    if (back_rb)
