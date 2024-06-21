@@ -113,6 +113,18 @@ brw_query_samples_for_format(struct gl_context *ctx, GLenum target,
    }
 }
 
+static bool swap = false;
+
+void intel_update_stereo_swap(void)
+{
+   swap = !swap;
+}
+
+bool intel_get_stereo_swap(void)
+{
+   return swap;
+}
+
 const char *const brw_vendor_string = "Intel Open Source Technology Center";
 
 const char *
@@ -1207,6 +1219,10 @@ intelMakeCurrent(__DRIcontext * driContextPriv,
       if (!brw->ctx.ViewportInitialized)
          intel_prepare_render(brw);
 
+      // force miptree validation on stereo buffers
+      if (ctx->Visual.stereoMode)
+         intel_resolve_for_dri2_flush(brw, driDrawPriv);
+
       _mesa_make_current(ctx, fb, readFb);
    } else {
       _mesa_make_current(NULL, NULL, NULL);
@@ -1219,7 +1235,10 @@ void
 intel_resolve_for_dri2_flush(struct brw_context *brw,
                              __DRIdrawable *drawable)
 {
-   if (brw->gen < 6) {
+   struct gl_context *ctx = &brw->ctx;
+   bool stereo = ctx->Visual.stereoMode;
+
+   if (brw->gen < 6 && !stereo) {
       /* MSAA and fast color clear are not supported, so don't waste time
        * checking whether a resolve is needed.
        */
@@ -1232,12 +1251,14 @@ intel_resolve_for_dri2_flush(struct brw_context *brw,
    /* Usually, only the back buffer will need to be downsampled. However,
     * the front buffer will also need it if the user has rendered into it.
     */
-   static const gl_buffer_index buffers[2] = {
+   static const gl_buffer_index buffers[4] = {
          BUFFER_BACK_LEFT,
          BUFFER_FRONT_LEFT,
+         BUFFER_BACK_RIGHT,
+         BUFFER_FRONT_RIGHT,
    };
 
-   for (int i = 0; i < 2; ++i) {
+   for (int i = 0; i < 4; ++i) {
       rb = intel_get_renderbuffer(fb, buffers[i]);
       if (rb == NULL || rb->mt == NULL)
          continue;
@@ -1634,7 +1655,6 @@ intel_update_image_buffers(struct brw_context *brw, __DRIdrawable *drawable)
 
    struct gl_context *ctx = &brw->ctx;
    bool stereo = ctx->Visual.stereoMode;
-   static bool swap = false;
 
    front_rb = intel_get_renderbuffer(fb, BUFFER_FRONT_LEFT);
    back_rb = intel_get_renderbuffer(fb, BUFFER_BACK_LEFT);
@@ -1651,8 +1671,6 @@ intel_update_image_buffers(struct brw_context *brw, __DRIdrawable *drawable)
       buffer_mask |= __DRI_IMAGE_BUFFER_FRONT;
    }
 
-   if (stereo)
-      swap = !swap;
    if (stereo && swap) {
       back_rb = intel_get_renderbuffer(fb, BUFFER_BACK_RIGHT);
       front_rb = intel_get_renderbuffer(fb, BUFFER_FRONT_RIGHT);
