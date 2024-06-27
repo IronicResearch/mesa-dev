@@ -987,7 +987,7 @@ dri3_create_screen(int screen, struct glx_display * priv)
    configs = driConvertConfigs(psc->core, psc->base.configs, driver_configs);
    visuals = driConvertConfigs(psc->core, psc->base.visuals, driver_configs);
 
-#if 0
+#if 1
    {
      int j, k, l;
      struct glx_config *m;

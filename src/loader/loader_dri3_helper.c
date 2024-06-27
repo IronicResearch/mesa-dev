@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <pthread.h>
 
 #include <X11/xshmfence.h>
 #include <xcb/xcb.h>
@@ -353,10 +354,37 @@ dri3_free_render_buffer(struct loader_dri3_drawable *draw,
    free(buffer);
 }
 
+static void* 
+dri3_swap_thread(void* data)
+{
+   struct loader_dri3_drawable *draw = (struct loader_dri3_drawable *)data;
+   unsigned int flags = __DRI2_FLUSH_DRAWABLE | __DRI2_FLUSH_CONTEXT;
+   static int counter = 0;
+
+   while (draw->stereo_swap) {
+      usleep(16666);
+      loader_dri3_swapbuffer_barrier(draw);
+      loader_dri3_flush(draw, flags, __DRI2_THROTTLE_SWAPBUFFER);
+      loader_dri3_swap_buffers_msc(draw, 0, 0, 0, flags, NULL, 0, false);
+      counter++;
+      flags ^= __DRI2_FLUSH_STEREO;
+   }
+
+   return NULL;
+}
+
 void
 loader_dri3_drawable_fini(struct loader_dri3_drawable *draw)
 {
    int i;
+
+   if (draw->stereo) {
+      draw->stereo_swap = false;
+      pthread_cancel(draw->thread);
+      pthread_join(draw->thread, NULL);
+      printf("%s: stereo = %d, swap = %d, pthread terminated\n", 
+        __func__, draw->stereo, draw->stereo_swap);
+   }
 
    draw->ext->core->destroyDrawable(draw->dri_drawable);
 
@@ -474,11 +502,24 @@ loader_dri3_drawable_init(xcb_connection_t *conn,
    draw->vtable->set_drawable_size(draw, draw->width, draw->height);
    free(reply);
 
+   draw->stereo = false; 
    draw->swap_method = __DRI_ATTRIB_SWAP_UNDEFINED;
    if (draw->ext->core->base.version >= 2) {
       (void )draw->ext->core->getConfigAttrib(dri_config,
                                               __DRI_ATTRIB_SWAP_METHOD,
                                               &draw->swap_method);
+      (void )draw->ext->core->getConfigAttrib(dri_config,
+                                              __DRI_ATTRIB_STEREO,
+                                              &draw->stereo);
+   }
+
+   if (draw->stereo) {
+      int ret;
+      draw->stereo_swap = true;
+      swap_interval = 1;
+      ret = pthread_create(&draw->thread, NULL, dri3_swap_thread, draw);
+      printf("%s: stereo = %d, swap = %d, pthread return = %d\n", 
+        __func__, draw->stereo, draw->stereo_swap, ret);
    }
 
    /*

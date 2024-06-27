@@ -241,7 +241,7 @@ driConfigEqual(const __DRIcoreExtension *core,
       case __DRI_ATTRIB_STEREO: {
          int r = scalarEqual(config, attrib, value);
          printf("__DRI_ATTRIB_STEREO: %d\n", r);
-         return r;
+         return (r) ? GL_TRUE : GL_FALSE;
       }
 
       case __DRI_ATTRIB_DOUBLE_BUFFER: {
@@ -249,7 +249,7 @@ driConfigEqual(const __DRIcoreExtension *core,
          //printf("__DRI_ATTRIB_DOUBLE_BUFFER: %d\n", r);
          if (r && getenv("MESA_GLX_FORCE_STEREO"))
             config->stereoMode = config->doubleBufferMode;
-         return r;
+         return (r) ? GL_TRUE : GL_FALSE;
       }
 
       default:

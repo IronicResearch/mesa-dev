@@ -190,6 +190,10 @@ struct loader_dri3_drawable {
    cnd_t event_cnd;
    unsigned last_special_event_sequence;
    bool has_event_waiter;
+
+   unsigned int stereo;
+   bool stereo_swap;
+   pthread_t thread;
 };
 
 void
