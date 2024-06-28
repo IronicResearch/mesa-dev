@@ -87,11 +87,11 @@
  * Mesa's Driver Functions
  ***************************************/
 
-static bool swap = false;
+static bool swap = true;
 
 void brw_update_stereo_swap(bool swap_right)
 {
-   swap = true; //swap_right;
+   swap = swap_right;
 }
 
 bool brw_get_stereo_swap(void)
