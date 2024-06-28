@@ -361,13 +361,14 @@ dri3_swap_thread(void* data)
    unsigned int flags = __DRI2_FLUSH_DRAWABLE | __DRI2_FLUSH_CONTEXT;
    static int counter = 0;
 
+   usleep(16666);
    while (draw->stereo_swap) {
-      usleep(16666);
       loader_dri3_swapbuffer_barrier(draw);
       loader_dri3_flush(draw, flags, __DRI2_THROTTLE_SWAPBUFFER);
-      loader_dri3_swap_buffers_msc(draw, 0, 0, 0, flags, NULL, 0, false);
+      //loader_dri3_swap_buffers_msc(draw, 0, 0, 0, flags, NULL, 0, false);
       counter++;
       flags ^= __DRI2_FLUSH_STEREO;
+      usleep(8333);
    }
 
    return NULL;
@@ -683,6 +684,7 @@ loader_dri3_wait_for_msc(struct loader_dri3_drawable *draw,
          mtx_unlock(&draw->mtx);
          return false;
       }
+      usleep(0);
    } while (full_sequence != cookie.sequence || draw->notify_msc < target_msc);
 
    *ust = draw->notify_ust;
@@ -719,6 +721,7 @@ loader_dri3_wait_for_sbc(struct loader_dri3_drawable *draw,
          mtx_unlock(&draw->mtx);
          return 0;
       }
+      usleep(0);
    }
 
    *ust = draw->ust;
@@ -2277,7 +2280,9 @@ loader_dri3_swapbuffer_barrier(struct loader_dri3_drawable *draw)
 {
    int64_t ust, msc, sbc;
 
-   (void) loader_dri3_wait_for_sbc(draw, 0, &ust, &msc, &sbc);
+   while (!loader_dri3_wait_for_sbc(draw, 0, &ust, &msc, &sbc)) {
+      usleep(0);
+   }
 }
 
 /**
