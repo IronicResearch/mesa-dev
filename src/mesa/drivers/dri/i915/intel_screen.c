@@ -171,7 +171,7 @@ intelDRI2FlushWithFlags(__DRIcontext *context,
       intel->need_throttle = true;
 
    if (ctx->Visual.stereoMode && intel->need_throttle)
-      intel_update_stereo_swap();
+      intel_update_stereo_swap((flags & __DRI2_FLUSH_STEREO));
 
    if (intel->batch.used)
       intel_batchbuffer_flush(intel);

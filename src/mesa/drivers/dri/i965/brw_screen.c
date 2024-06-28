@@ -173,7 +173,7 @@ brw_dri2_flush_with_flags(__DRIcontext *cPriv,
       brw->need_flush_throttle = true;
 
    if (ctx->Visual.stereoMode && brw->need_swap_throttle)
-      brw_update_stereo_swap();
+      brw_update_stereo_swap((flags & __DRI2_FLUSH_STEREO) != 0);
 
    brw_batch_flush(brw);
 }

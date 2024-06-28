@@ -89,9 +89,9 @@
 
 static bool swap = false;
 
-void brw_update_stereo_swap(void)
+void brw_update_stereo_swap(bool swap_right)
 {
-   swap = !swap;
+   swap = true; //swap_right;
 }
 
 bool brw_get_stereo_swap(void)

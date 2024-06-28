@@ -103,9 +103,9 @@ intelGetString(struct gl_context * ctx, GLenum name)
 
 static bool swap = false;
 
-void intel_update_stereo_swap(void)
+void intel_update_stereo_swap(bool swap_right)
 {
-   swap = !swap;
+   swap = swap_right;
 }
 
 bool intel_get_stereo_swap(void)

@@ -1285,7 +1285,7 @@ GLboolean brw_create_context(gl_api api,
                              void *sharedContextPrivate);
 
 extern void brw_glFlush(struct gl_context *ctx, unsigned gallium_flush_flags);
-extern void brw_update_stereo_swap(void);
+extern void brw_update_stereo_swap(bool swap);
 extern bool brw_get_stereo_swap(void);
 
 /*======================================================================
