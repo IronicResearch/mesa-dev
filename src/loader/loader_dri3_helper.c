@@ -359,16 +359,16 @@ dri3_swap_thread(void* data)
 {
    struct loader_dri3_drawable *draw = (struct loader_dri3_drawable *)data;
    unsigned int flags = __DRI2_FLUSH_DRAWABLE | __DRI2_FLUSH_CONTEXT;
+   unsigned int swap_delay = 8333; // 16ms @60Hz .. 8ms @120Hz
    static int counter = 0;
 
-   usleep(16666);
    while (draw->stereo_swap) {
+      usleep(swap_delay);
       loader_dri3_swapbuffer_barrier(draw);
       loader_dri3_flush(draw, flags, __DRI2_THROTTLE_SWAPBUFFER);
       //loader_dri3_swap_buffers_msc(draw, 0, 0, 0, flags, NULL, 0, false);
       counter++;
       flags ^= __DRI2_FLUSH_STEREO;
-      usleep(8333);
    }
 
    return NULL;
@@ -381,7 +381,7 @@ loader_dri3_drawable_fini(struct loader_dri3_drawable *draw)
 
    if (draw->stereo) {
       draw->stereo_swap = false;
-      pthread_cancel(draw->thread);
+      //pthread_cancel(draw->thread);
       pthread_join(draw->thread, NULL);
       printf("%s: stereo = %d, swap = %d, pthread terminated\n", 
         __func__, draw->stereo, draw->stereo_swap);
