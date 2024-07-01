@@ -365,8 +365,8 @@ dri3_swap_thread(void* data)
    while (draw->stereo_swap) {
       usleep(swap_delay);
       loader_dri3_swapbuffer_barrier(draw);
-      loader_dri3_flush(draw, flags, __DRI2_THROTTLE_SWAPBUFFER);
-      //loader_dri3_swap_buffers_msc(draw, 0, 0, 0, flags, NULL, 0, false);
+      //loader_dri3_flush(draw, flags, __DRI2_THROTTLE_SWAPBUFFER);
+      loader_dri3_swap_buffers_msc(draw, 0, 0, 0, flags, NULL, 0, false);
       counter++;
       flags ^= __DRI2_FLUSH_STEREO;
    }
