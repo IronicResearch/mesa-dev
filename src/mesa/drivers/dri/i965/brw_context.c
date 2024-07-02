@@ -113,11 +113,11 @@ brw_query_samples_for_format(struct gl_context *ctx, GLenum target,
    }
 }
 
-static bool swap = false;
+static bool swap = true;
 
-void intel_update_stereo_swap(void)
+void intel_update_stereo_swap(bool swap_right)
 {
-   swap = !swap;
+   swap = swap_right;
 }
 
 bool intel_get_stereo_swap(void)

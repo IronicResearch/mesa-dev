@@ -159,6 +159,10 @@ struct loader_dri3_drawable {
 
    struct loader_dri3_extensions *ext;
    struct loader_dri3_vtable *vtable;
+
+   bool stereo;
+   bool stereo_swap;
+   pthread_t thread;
 };
 
 void

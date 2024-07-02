@@ -694,10 +694,10 @@ radeonCreateBuffer( __DRIscreen *driScrnPriv,
     // TODO: stereo front & back buffers
     if (mesaVis->stereoMode) {
        rfb->color_rb[2] = radeon_create_renderbuffer(rgbFormat, driDrawPriv);
-       _mesa_attach_and_own_rb(&rfb->base, BUFFER_FRONT_RIGHT, &rfb->color_rb[2]->base.Base);
+       _mesa_add_renderbuffer(&rfb->base, BUFFER_FRONT_RIGHT, &rfb->color_rb[2]->base.Base);
        rfb->color_rb[2]->has_surface = 1;
        rfb->color_rb[3] = radeon_create_renderbuffer(rgbFormat, driDrawPriv);
-       _mesa_attach_and_own_rb(&rfb->base, BUFFER_BACK_RIGHT, &rfb->color_rb[3]->base.Base);
+       _mesa_add_renderbuffer(&rfb->base, BUFFER_BACK_RIGHT, &rfb->color_rb[3]->base.Base);
        rfb->color_rb[3]->has_surface = 1;
     }
 

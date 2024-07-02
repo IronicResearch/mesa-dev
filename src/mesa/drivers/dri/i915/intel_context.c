@@ -100,6 +100,18 @@ intelGetString(struct gl_context * ctx, GLenum name)
    }
 }
 
+static bool swap = false;
+
+void intel_update_stereo_swap(bool swap_right)
+{
+   swap = swap_right;
+}
+
+bool intel_get_stereo_swap(void)
+{
+   return swap;
+}
+
 #define flushFront(screen)      ((screen)->image.loader ? (screen)->image.loader->flushFrontBuffer : (screen)->dri2.loader->flushFrontBuffer)
 
 static void
@@ -884,13 +896,10 @@ intel_update_image_buffers(struct intel_context *intel, __DRIdrawable *drawable)
 
    struct gl_context *ctx = &intel->ctx;
    bool stereo = ctx->Visual.stereoMode;
-   static bool swap = false;
 
    front_rb = intel_get_renderbuffer(fb, BUFFER_FRONT_LEFT);
    back_rb = intel_get_renderbuffer(fb, BUFFER_BACK_LEFT);
 
-   if (stereo)
-      swap = !swap;
    if (stereo && swap) {
       back_rb = intel_get_renderbuffer(fb, BUFFER_BACK_RIGHT);
       front_rb = intel_get_renderbuffer(fb, BUFFER_FRONT_RIGHT);

@@ -106,10 +106,40 @@ dri3_free_render_buffer(struct loader_dri3_drawable *draw,
    free(buffer);
 }
 
+static void* 
+dri3_swap_thread(void* data)
+{
+   struct loader_dri3_drawable *draw = (struct loader_dri3_drawable *)data;
+   unsigned int flags = __DRI2_FLUSH_DRAWABLE | __DRI2_FLUSH_CONTEXT;
+   unsigned int swap_delay = 8333; // 16ms @60Hz .. 8ms @120Hz
+   int64_t ust = 0, msc = 0, sbc = 0;
+   static int counter = 0;
+
+   while (draw->stereo_swap) {
+      usleep(swap_delay);
+      //loader_dri3_swapbuffer_barrier(draw);
+      loader_dri3_wait_for_sbc(draw, 0, &ust, &msc, &sbc);
+      loader_dri3_flush(draw, flags, __DRI2_THROTTLE_SWAPBUFFER);
+      //loader_dri3_swap_buffers_msc(draw, 0, 0, 0, flags, NULL, 0, false);
+      counter++;
+      flags ^= __DRI2_FLUSH_STEREO;
+   }
+
+   return NULL;
+}
+
 void
 loader_dri3_drawable_fini(struct loader_dri3_drawable *draw)
 {
    int i;
+
+   if (draw->stereo) {
+      draw->stereo_swap = false;
+      //pthread_cancel(draw->thread);
+      pthread_join(draw->thread, NULL);
+      printf("%s: stereo = %d, swap = %d, pthread terminated\n", 
+        __func__, draw->stereo, draw->stereo_swap);
+   }
 
    (draw->ext->core->destroyDrawable)(draw->dri_drawable);
 
@@ -189,6 +219,16 @@ loader_dri3_drawable_init(xcb_connection_t *conn,
    draw->depth = reply->depth;
    draw->vtable->set_drawable_size(draw, draw->width, draw->height);
    free(reply);
+
+   draw->stereo = getenv("MESA_GLX_FORCE_STEREO") != NULL;
+   if (draw->stereo) {
+      int ret;
+      draw->stereo_swap = true;
+      swap_interval = 1;
+      ret = pthread_create(&draw->thread, NULL, dri3_swap_thread, draw);
+      printf("%s: stereo = %d, swap = %d, pthread return = %d\n", 
+        __func__, draw->stereo, draw->stereo_swap, ret);
+   }
 
    /*
     * Make sure server has the same swap interval we do for the new
@@ -314,6 +354,7 @@ loader_dri3_wait_for_msc(struct loader_dri3_drawable *draw,
          if (!dri3_wait_for_event(draw))
             return false;
       }
+      usleep(0);
    }
 
    *ust = draw->notify_ust;
@@ -346,6 +387,7 @@ loader_dri3_wait_for_sbc(struct loader_dri3_drawable *draw,
    while (draw->recv_sbc < target_sbc) {
       if (!dri3_wait_for_event(draw))
          return 0;
+      usleep(0);
    }
 
    *ust = draw->ust;
@@ -615,6 +657,7 @@ dri3_flush_present_events(struct loader_dri3_drawable *draw)
          xcb_present_generic_event_t *ge = (void *) ev;
          dri3_handle_present_event(draw, ge);
       }
+      usleep(0);
    }
 }
 

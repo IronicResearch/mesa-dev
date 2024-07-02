@@ -180,7 +180,7 @@ intel_dri2_flush_with_flags(__DRIcontext *cPriv,
       brw->need_flush_throttle = true;
 
    if (ctx->Visual.stereoMode && brw->need_swap_throttle)
-      intel_update_stereo_swap();
+      intel_update_stereo_swap((flags & __DRI2_FLUSH_STEREO) != 0);
 
    intel_batchbuffer_flush(brw);
 

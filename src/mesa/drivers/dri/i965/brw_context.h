@@ -1329,7 +1329,7 @@ struct brw_context
 };
 
 extern void intel_glFlush(struct gl_context *ctx);
-extern void intel_update_stereo_swap(void);
+extern void intel_update_stereo_swap(bool swap);
 extern bool intel_get_stereo_swap(void);
 
 /*======================================================================
