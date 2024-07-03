@@ -89,6 +89,7 @@ env.Append(CPPDEFINES = [
     'GLX_DIRECT_RENDERING',
     'GLX_USE_DRM',
     'HAVE_DRM_PLATFORM',
+    'HAVE_DRI3',
 ])
 
 # for debugging

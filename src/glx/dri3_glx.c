@@ -846,7 +846,7 @@ dri3_create_screen(int screen, struct glx_display * priv)
    psc->loader_dri3_ext.image = psc->image;
    psc->loader_dri3_ext.config = psc->config;
 
-#if 1
+#if 0
    {
      int j, k, l;
      const __DRIconfig *driconfig;

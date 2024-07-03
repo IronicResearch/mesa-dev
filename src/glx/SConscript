@@ -29,7 +29,9 @@ env.Append(CPPDEFINES = [
 
 env.Prepend(LIBS = [
     libloader,
-    glapi
+    glapi,
+    'xcb-dri3',
+    'xcb-present',
 ])
 
 env.PkgUseModules('X11')
@@ -83,7 +85,7 @@ sources = [
     'dri2_glx.c',
     'dri2.c',
     'dri_common_query_renderer.c',
-    #'dri3_glx.c',
+    'dri3_glx.c',
     'applegl_glx.c',
 ]
 
