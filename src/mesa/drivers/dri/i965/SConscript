@@ -11,9 +11,9 @@ Import('*')
 env = env.Clone()
 
 env.Append(CPPPATH = [
+    '#/include/drm-uapi',
     '/usr/include/libdrm',
     '#/include',
-    '#/include/drm-uapi',
     '#/src/',
     '#/src/compiler/nir',
     '#/src/intel',

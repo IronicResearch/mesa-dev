@@ -77,15 +77,6 @@
 #include "isl/isl.h"
 
 #include "i915_drm.h"
-#ifndef I915_CONTEXT_MIN_USER_PRIORITY
-#define I915_CONTEXT_MIN_USER_PRIORITY	-1023
-#endif
-#ifndef I915_CONTEXT_DEFAULT_PRIORITY
-#define I915_CONTEXT_DEFAULT_PRIORITY	0
-#endif
-#ifndef I915_CONTEXT_MAX_USER_PRIORITY
-#define I915_CONTEXT_MAX_USER_PRIORITY	1023
-#endif
 #include "common/gen_defines.h"
 
 #include "compiler/spirv/nir_spirv.h"
