@@ -921,8 +921,12 @@ init_fbconfig_for_chooser(struct glx_config * config,
    if (fbconfig_style_tags) {
       config->rgbMode = GL_TRUE;
       config->doubleBufferMode = GLX_DONT_CARE;
+      config->stereoMode = GLX_DONT_CARE;
       config->renderType = GLX_RGBA_BIT;
    }
+
+   if (getenv("MESA_GLX_FORCE_STEREO"))
+      config->stereoMode = GLX_DONT_CARE;
 
    config->drawableType = GLX_WINDOW_BIT;
    config->visualRating = GLX_DONT_CARE;
@@ -1007,7 +1011,7 @@ fbconfigs_compatible(const struct glx_config * const a,
    MATCH_MINIMUM(maxPbufferPixels);
    MATCH_MINIMUM(samples);
 
-   MATCH_DONT_CARE(stereoMode);
+   MATCH_DONT_CARE(stereoMode); //
    MATCH_EXACT(level);
 
    MATCH_MASK(drawableType);
@@ -1123,6 +1127,14 @@ fbconfig_compare(struct glx_config **a, struct glx_config **b)
    PREFER_LARGER_OR_ZERO(alphaBits);
 
    PREFER_SMALLER(rgbBits);
+
+#if 0
+   if (((*a)->stereoMode != (*b)->stereoMode)) {
+      /* Prefer single-buffer.
+       */
+      return (!(*a)->stereoMode) ? -1 : 1;
+   }
+#endif
 
    if (((*a)->doubleBufferMode != (*b)->doubleBufferMode)) {
       /* Prefer single-buffer.

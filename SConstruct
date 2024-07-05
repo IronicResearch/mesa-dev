@@ -87,6 +87,18 @@ env.Append(CPPPATH = [
 	'#/src/gallium/winsys',
 ])
 
+# Defines which should have been set via auto-config
+# $CFLAGS -DHAVE_X11_PLATFORM -DHAVE_XCB_PLATFORM -DGLX_INDIRECT_RENDERING -DGLX_DIRECT_RENDERING -DGLX_USE_DRM -DHAVE_DRM_PLATFORM
+env.Append(CPPDEFINES = [
+    'HAVE_X11_PLATFORM',
+    'HAVE_XCB_PLATFORM',
+    'GLX_INDIRECT_RENDERING',
+    'GLX_DIRECT_RENDERING',
+    'GLX_USE_DRM',
+    'HAVE_DRM_PLATFORM',
+    'HAVE_DRI3',
+])
+
 # for debugging
 #print env.Dump()
 

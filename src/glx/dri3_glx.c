@@ -936,8 +936,54 @@ dri3_create_screen(int screen, struct glx_display * priv)
    psc->loader_dri3_ext.image = psc->image;
    psc->loader_dri3_ext.config = psc->config;
 
+#if 0
+   {
+     int j, k, l;
+     const __DRIconfig *driconfig;
+
+     j = k = l = 0;
+     for (j = 0; driver_configs[j] != NULL; j++) {
+        driconfig = driver_configs[j];
+        if (driconfig->modes.doubleBufferMode)
+          k++;
+        if (driconfig->modes.stereoMode)
+          l++;
+     }
+     printf("driver_configs: j=%d, k=%d, l=%d\n", j, k, l);
+   }
+#endif
+
+   // FIXME: driver_comfigs filtered out stereoModes 
+   
    configs = driConvertConfigs(psc->core, psc->base.configs, driver_configs);
    visuals = driConvertConfigs(psc->core, psc->base.visuals, driver_configs);
+
+#if 1
+   {
+     int j, k, l;
+     struct glx_config *m;
+
+     j = k = l = 0;
+     for (m = configs; m; m = m->next) {
+        j++;
+        if (m->doubleBufferMode)
+          k++;
+        if (m->stereoMode)
+          l++;
+     }
+     printf("configs: j=%d, k=%d, l=%d\n", j, k, l);
+
+     j = k = l = 0;
+     for (m = visuals; m; m = m->next) {
+        j++;
+        if (m->doubleBufferMode)
+          k++;
+        if (m->stereoMode)
+          l++;
+     }
+     printf("visuals: j=%d, k=%d, l=%d\n", j, k, l);
+   }
+#endif
 
    if (!configs || !visuals) {
        ErrorMessageF("No matching fbConfigs or visuals found\n");

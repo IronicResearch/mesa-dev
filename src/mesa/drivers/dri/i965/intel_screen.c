@@ -157,6 +157,9 @@ intel_dri2_flush_with_flags(__DRIcontext *cPriv,
    if (reason == __DRI2_THROTTLE_FLUSHFRONT)
       brw->need_flush_throttle = true;
 
+   if (ctx->Visual.stereoMode && brw->need_swap_throttle)
+      intel_update_stereo_swap((flags & __DRI2_FLUSH_STEREO) != 0);
+
    intel_batchbuffer_flush(brw);
 }
 
@@ -166,7 +169,7 @@ intel_dri2_flush_with_flags(__DRIcontext *cPriv,
  *
  * That includes libGL up to Mesa 9.0, and the X Server at least up to 1.13.
  */
-static void
+/* static */ void
 intel_dri2_flush(__DRIdrawable *drawable)
 {
    intel_dri2_flush_with_flags(drawable->driContextPriv, drawable,
@@ -1746,6 +1749,13 @@ intelCreateBuffer(__DRIscreen *dri_screen,
       rb->need_srgb = srgb_cap_set;
    }
 
+   if (mesaVis->stereoMode) {
+      rb = intel_create_renderbuffer(rgbFormat, num_samples);
+      _mesa_attach_and_own_rb(fb, BUFFER_FRONT_RIGHT, &rb->Base.Base);
+      rb = intel_create_renderbuffer(rgbFormat, num_samples);
+      _mesa_attach_and_own_rb(fb, BUFFER_BACK_RIGHT, &rb->Base.Base);
+   }
+
    /*
     * Assert here that the gl_config has an expected depth/stencil bit
     * combination: one of d24/s8, d16/s0, d0/s0. (See intelInitScreen2(),
@@ -2767,7 +2777,9 @@ intelAllocateBuffer(__DRIscreen *dri_screen,
    struct intel_screen *screen = dri_screen->driverPrivate;
 
    assert(attachment == __DRI_BUFFER_FRONT_LEFT ||
-          attachment == __DRI_BUFFER_BACK_LEFT);
+          attachment == __DRI_BUFFER_BACK_LEFT ||
+          attachment == __DRI_BUFFER_BACK_RIGHT ||
+          attachment == __DRI_BUFFER_FRONT_RIGHT);
 
    intelBuffer = calloc(1, sizeof *intelBuffer);
    if (intelBuffer == NULL)
@@ -2843,3 +2855,4 @@ PUBLIC const __DRIextension **__driDriverGetExtensions_i965(void)
 
    return brw_driver_extensions;
 }
+

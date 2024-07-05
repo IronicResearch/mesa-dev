@@ -2313,7 +2313,6 @@ find_value_indexed(const char *func, GLenum pname, GLuint index, union value *v)
    GET_CURRENT_CONTEXT(ctx);
 
    switch (pname) {
-
    case GL_BLEND:
       if (index >= ctx->Const.MaxDrawBuffers)
          goto invalid_value;

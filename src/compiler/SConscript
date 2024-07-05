@@ -17,7 +17,7 @@ env.Prepend(CPPPATH = [
 env.Prepend(CPPPATH = [Dir('.').abspath, Dir('glsl').abspath])
 env.Prepend(CPPPATH = [Dir('.').abspath, Dir('nir').abspath])
 
-sources = env.ParseSourceList('Makefile.sources', 'LIBCOMPILER_FILES')
+sources = env.ParseSourceList('Makefile.sources', ['LIBCOMPILER_FILES'])
 
 compiler = env.ConvenienceLibrary(
     target = 'compiler',

@@ -8,4 +8,8 @@ if env['x11']:
 if env['dri']:
     SConscript([
         'dri/common/SConscript',
+        'dri/i915/SConscript',
+        'dri/i965/SConscript',
+        'dri/radeon/SConscript',
+        'dri/r200/SConscript',
     ])

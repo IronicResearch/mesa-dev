@@ -223,7 +223,7 @@ static const struct
       __ATTRIB(__DRI_ATTRIB_SAMPLE_BUFFERS, sampleBuffers),
       __ATTRIB(__DRI_ATTRIB_SAMPLES, samples),
       __ATTRIB(__DRI_ATTRIB_DOUBLE_BUFFER, doubleBufferMode),
-      __ATTRIB(__DRI_ATTRIB_STEREO, stereoMode),
+      __ATTRIB(__DRI_ATTRIB_STEREO, stereoMode),   // FIXME      
       __ATTRIB(__DRI_ATTRIB_AUX_BUFFERS, numAuxBuffers),
 #if 0
       __ATTRIB(__DRI_ATTRIB_TRANSPARENT_TYPE, transparentPixel),
@@ -329,6 +329,21 @@ driConfigEqual(const __DRIcoreExtension *core,
             return GL_FALSE;
 
          break;
+
+      // FIXME
+      case __DRI_ATTRIB_STEREO: {
+         int r = scalarEqual(config, attrib, value);
+         printf("__DRI_ATTRIB_STEREO: %d\n", r);
+         return (r) ? GL_TRUE : GL_FALSE;
+      }
+
+      case __DRI_ATTRIB_DOUBLE_BUFFER: {
+         int r = scalarEqual(config, attrib, value);
+         //printf("__DRI_ATTRIB_DOUBLE_BUFFER: %d\n", r);
+         if (r && getenv("MESA_GLX_FORCE_STEREO"))
+            config->stereoMode = config->doubleBufferMode;
+         return (r) ? GL_TRUE : GL_FALSE;
+      }
 
       default:
          if (!scalarEqual(config, attrib, value))

@@ -1,0 +1,61 @@
+###################################
+# SConscript file for dri targets
+
+import os
+import os.path
+Import('*')
+
+#
+# dri_radeon
+#
+env = env.Clone()
+
+env.Append(CPPPATH = [
+    '/usr/include/libdrm',
+    '#/include',
+    '#/src/',
+    '#/src/mapi',
+    '#/src/mesa',
+    '#/src/mesa/drivers/dri/common',
+    '#/src/mesa/drivers/dri/radeon/server',
+    xmlpool_options.dir.dir, # Dir to generated xmlpool/options.h
+])
+
+env.Append(CPPDEFINES = [
+    'HAVE_DLADDR',
+    'RADEON_R100',
+])
+
+# LIBS to link driver for local Mesa imports
+env.Prepend(LIBS = [
+    libloader,
+    mesautil,
+    compiler,
+    mesa,
+    glsl,
+    megadrivers_stub,
+    dri_common,
+])
+
+# LIBS to link driver for DRM platform imports
+env.Append(LIBS = ['drm','drm_radeon','expat'])
+#env.Append(LIBPATH = ['/usr/lib/i386-linux-gnu'])
+#libpath = ''
+#env.Command(target = libpath, source = 'libdrm', action = "pkg-config --variable=libdir $SOURCE > $TARGET")
+libpath = os.popen("pkg-config --variable=libdir libdrm").read()
+libpath = libpath.strip('\n')
+env.Prepend(LIBPATH = libpath)
+
+sources = env.ParseSourceList('Makefile.sources', 'RADEON_C_FILES')
+
+dri_radeon = env.SharedLibrary(
+        target = 'radeon_dri.so',
+        source = sources,
+        SHLIBPREFIX = '',
+)
+
+env.Alias('dri_radeon', dri_radeon)
+
+Export([
+    'dri_radeon',
+])

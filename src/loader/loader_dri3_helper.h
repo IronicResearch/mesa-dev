@@ -173,6 +173,10 @@ struct loader_dri3_drawable {
    mtx_t mtx;
    cnd_t event_cnd;
    bool has_event_waiter;
+
+   bool stereo;
+   bool stereo_swap;
+   pthread_t thread;
 };
 
 void

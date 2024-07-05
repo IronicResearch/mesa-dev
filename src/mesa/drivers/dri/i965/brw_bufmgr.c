@@ -68,6 +68,9 @@
 #include "string.h"
 
 #include "i915_drm.h"
+#ifndef I915_CONTEXT_PARAM_PRIORITY
+#define I915_CONTEXT_PARAM_PRIORITY 	6
+#endif
 
 #ifdef HAVE_VALGRIND
 #include <valgrind.h>

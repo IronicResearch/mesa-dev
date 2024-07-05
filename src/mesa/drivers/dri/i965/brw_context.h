@@ -44,7 +44,8 @@
 #include "isl/isl.h"
 #include "blorp/blorp.h"
 
-#include <brw_bufmgr.h>
+#include "i915_drm.h"
+#include "brw_bufmgr.h"
 
 #include "common/gen_debug.h"
 #include "common/gen_decoder.h"
@@ -1342,6 +1343,10 @@ struct brw_context
 
 /* brw_clear.c */
 extern void intelInitClearFuncs(struct dd_function_table *functions);
+
+extern void intel_glFlush(struct gl_context *ctx);
+extern void intel_update_stereo_swap(bool swap);
+extern bool intel_get_stereo_swap(void);
 
 /*======================================================================
  * brw_context.c
