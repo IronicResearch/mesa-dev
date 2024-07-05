@@ -36,6 +36,7 @@ env.Prepend(LIBS = [
     glsl,
     megadrivers_stub,
     dri_common,
+    nir,
 ])
 
 # LIBS to link driver for DRM platform imports
@@ -47,7 +48,11 @@ libpath = os.popen("pkg-config --variable=libdir libdrm").read()
 libpath = libpath.strip('\n')
 env.Prepend(LIBPATH = libpath)
 
-sources = env.ParseSourceList('Makefile.sources', ['i965_FILES'])
+sources = env.ParseSourceList('Makefile.sources', 
+	['i965_FILES',
+	'i965_oa_GENERATED_FILES',
+	'intel_tiled_memcpy_FILES'
+	])
 
 dri_i965 = env.SharedLibrary(
 	target = 'i965_dri.so',
