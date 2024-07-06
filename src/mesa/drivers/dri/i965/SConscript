@@ -27,6 +27,44 @@ env.Append(CPPDEFINES = [
     'HAVE_DLADDR',
 ])
 
+#libi965_gen11_la_SOURCES = $(i965_gen11_FILES)
+#libi965_gen11_la_CFLAGS = $(AM_CFLAGS) -DGEN_VERSIONx10=110
+
+env_gen11 = env.Clone()
+env_gen11.Append(CPPDEFINES = ['GEN_VERSIONx10=110'])
+src_gen11 = env_gen11.ParseSourceList('Makefile.sources', 'i965_gen11_FILES')
+lib_gen11 = env_gen11.ConvenienceLibrary(target = 'lib_gen11', source = src_gen11)
+
+env_gen5 = env.Clone()
+env_gen5.Append(CPPDEFINES = ['GEN_VERSIONx10=50'])
+src_gen5 = env_gen5.ParseSourceList('Makefile.sources', 'i965_gen5_FILES')
+lib_gen5 = env_gen5.ConvenienceLibrary(target = 'lib_gen5', source = src_gen5)
+
+env_gen6 = env.Clone()
+env_gen6.Append(CPPDEFINES = ['GEN_VERSIONx10=60'])
+src_gen6 = env_gen6.ParseSourceList('Makefile.sources', 'i965_gen6_FILES')
+lib_gen6 = env_gen6.ConvenienceLibrary(target = 'lib_gen6', source = src_gen6)
+
+env_gen10 = env.Clone()
+env_gen10.Append(CPPDEFINES = ['GEN_VERSIONx10=100'])
+src_gen10 = env_gen10.ParseSourceList('Makefile.sources', 'i965_gen10_FILES')
+lib_gen10 = env_gen10.ConvenienceLibrary(target = 'lib_gen10', source = src_gen10)
+
+env_gen75 = env.Clone()
+env_gen75.Append(CPPDEFINES = ['GEN_VERSIONx10=75'])
+src_gen75 = env_gen75.ParseSourceList('Makefile.sources', 'i965_gen75_FILES')
+lib_gen75 = env_gen75.ConvenienceLibrary(target = 'lib_gen75', source = src_gen75)
+
+env_gen45 = env.Clone()
+env_gen45.Append(CPPDEFINES = ['GEN_VERSIONx10=45'])
+src_gen45 = env_gen45.ParseSourceList('Makefile.sources', 'i965_gen45_FILES')
+lib_gen45 = env_gen45.ConvenienceLibrary(target = 'lib_gen45', source = src_gen45)
+
+env_gen7 = env.Clone()
+env_gen7.Append(CPPDEFINES = ['GEN_VERSIONx10=70'])
+src_gen7 = env_gen7.ParseSourceList('Makefile.sources', 'i965_gen7_FILES')
+lib_gen7 = env_gen7.ConvenienceLibrary(target = 'lib_gen7', source = src_gen7)
+
 # LIBS to link driver for local Mesa imports
 env.Prepend(LIBS = [
     libloader,
@@ -37,6 +75,13 @@ env.Prepend(LIBS = [
     megadrivers_stub,
     dri_common,
     nir,
+    lib_gen11,
+    lib_gen5,
+    lib_gen6,
+    lib_gen10,
+    lib_gen75,
+    lib_gen45,
+    lib_gen7,
 ])
 
 # LIBS to link driver for DRM platform imports

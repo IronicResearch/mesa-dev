@@ -129,24 +129,24 @@ i965_gen4_FILES = \
 	genX_state_upload.c
 
 i965_gen45_FILES = \
-	genX_blorp_exec.c \
-	genX_state_upload.c
+	gen45_blorp_exec.c \
+	gen45_state_upload.c
 
 i965_gen5_FILES = \
-	genX_blorp_exec.c \
-	genX_state_upload.c
+	gen5_blorp_exec.c \
+	gen5_state_upload.c
 
 i965_gen6_FILES = \
-	genX_blorp_exec.c \
-	genX_state_upload.c
+	gen6_blorp_exec.c \
+	gen6_state_upload.c
 
 i965_gen7_FILES = \
-	genX_blorp_exec.c \
-	genX_state_upload.c
+	gen7_blorp_exec.c \
+	gen7_state_upload.c
 
 i965_gen75_FILES = \
-	genX_blorp_exec.c \
-	genX_state_upload.c
+	gen75_blorp_exec.c \
+	gen75_state_upload.c
 
 i965_gen8_FILES = \
 	genX_blorp_exec.c \
@@ -157,8 +157,8 @@ i965_gen9_FILES = \
 	genX_state_upload.c
 
 i965_gen10_FILES = \
-	genX_blorp_exec.c \
-	genX_state_upload.c
+	gen10_blorp_exec.c \
+	gen10_state_upload.c
 
 i965_gen11_FILES = \
 	genX_blorp_exec.c \
