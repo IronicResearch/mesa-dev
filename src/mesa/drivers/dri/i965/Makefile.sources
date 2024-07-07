@@ -125,8 +125,8 @@ intel_tiled_memcpy_dep_FILES = \
 	intel_tiled_memcpy.c
 
 i965_gen4_FILES = \
-	genX_blorp_exec.c \
-	genX_state_upload.c
+	gen4_blorp_exec.c \
+	gen4_state_upload.c
 
 i965_gen45_FILES = \
 	gen45_blorp_exec.c \
@@ -149,20 +149,20 @@ i965_gen75_FILES = \
 	gen75_state_upload.c
 
 i965_gen8_FILES = \
-	genX_blorp_exec.c \
-	genX_state_upload.c
+	gen8_blorp_exec.c \
+	gen8_state_upload.c
 
 i965_gen9_FILES = \
-	genX_blorp_exec.c \
-	genX_state_upload.c
+	gen9_blorp_exec.c \
+	gen9_state_upload.c
 
 i965_gen10_FILES = \
 	gen10_blorp_exec.c \
 	gen10_state_upload.c
 
 i965_gen11_FILES = \
-	genX_blorp_exec.c \
-	genX_state_upload.c
+	gen11_blorp_exec.c \
+	gen11_state_upload.c
 
 i965_oa_GENERATED_FILES = \
 	brw_oa_metrics.c \

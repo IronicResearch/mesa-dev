@@ -1,0 +1,42 @@
+Import('*')
+
+env = env.Clone()
+
+env.MSVC2013Compat()
+
+env.Prepend(CPPPATH = [
+    '#include',
+    '#include/drm-uapi',
+    '#src',
+    '#src/mapi',
+    '#src/mesa',
+    '#src/gallium/include',
+    '#src/gallium/auxiliary',
+])
+
+# Make generated headers reachable from the include path.
+env.Prepend(CPPPATH = [Dir('.').abspath, Dir('common').abspath])
+env.Prepend(CPPPATH = [Dir('.').abspath, Dir('compiler').abspath])
+env.Prepend(CPPPATH = [Dir('.').abspath, Dir('genxml').abspath])
+env.Prepend(CPPPATH = [Dir('.').abspath, Dir('blorp').abspath])
+env.Prepend(CPPPATH = [Dir('.').abspath, Dir('isl').abspath])
+env.Prepend(CPPPATH = [Dir('.').abspath, Dir('dev').abspath])
+
+env.Append(CPPFLAGS = ['-Wno-pointer-arith','-Wno-vla'])
+
+sources = env.ParseSourceList('Makefile.sources', ['COMMON_FILES'])
+lib_intel_common = env.ConvenienceLibrary(target = 'lib_intel_common', source = sources)
+
+sources = env.ParseSourceList('Makefile.sources', ['COMPILER_FILES'])
+lib_intel_compiler = env.ConvenienceLibrary(target = 'lib_intel_compiler', source = sources)
+
+sources = env.ParseSourceList('Makefile.sources', ['BLORP_FILES'])
+lib_intel_blorp = env.ConvenienceLibrary(target = 'lib_intel_blorp', source = sources)
+
+sources = env.ParseSourceList('Makefile.sources', ['ISL_FILES','ISL_GENERATED_FILES'])
+lib_intel_isl = env.ConvenienceLibrary(target = 'lib_intel_isl', source = sources)
+
+sources = env.ParseSourceList('Makefile.sources', ['DEV_FILES'])
+lib_intel_dev = env.ConvenienceLibrary(target = 'lib_intel_dev', source = sources)
+
+Export(['lib_intel_common','lib_intel_compiler','lib_intel_blorp','lib_intel_isl','lib_intel_dev'])
