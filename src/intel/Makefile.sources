@@ -172,48 +172,48 @@ ISL_FILES = \
 ISL_GEN4_FILES = \
 	isl/isl_gen4.c \
 	isl/isl_gen4.h \
-	isl/isl_emit_depth_stencil.c \
-	isl/isl_surface_state.c
+	isl/isl_emit_depth_stencil4.c \
+	isl/isl_surface_state4.c
 
 ISL_GEN5_FILES = \
-	isl/isl_emit_depth_stencil.c \
-	isl/isl_surface_state.c
+	isl/isl_emit_depth_stencil5.c \
+	isl/isl_surface_state5.c
 
 ISL_GEN6_FILES = \
 	isl/isl_gen6.c \
 	isl/isl_gen6.h \
-	isl/isl_emit_depth_stencil.c \
-	isl/isl_surface_state.c
+	isl/isl_emit_depth_stencil6.c \
+	isl/isl_surface_state6.c
 
 ISL_GEN7_FILES = \
 	isl/isl_gen7.c \
 	isl/isl_gen7.h \
-	isl/isl_emit_depth_stencil.c \
-	isl/isl_surface_state.c
+	isl/isl_emit_depth_stencil7.c \
+	isl/isl_surface_state7.c
 
 ISL_GEN75_FILES = \
-	isl/isl_emit_depth_stencil.c \
-	isl/isl_surface_state.c
+	isl/isl_emit_depth_stencil75.c \
+	isl/isl_surface_state75.c
 
 ISL_GEN8_FILES = \
 	isl/isl_gen8.c \
 	isl/isl_gen8.h \
-	isl/isl_emit_depth_stencil.c \
-	isl/isl_surface_state.c
+	isl/isl_emit_depth_stencil8.c \
+	isl/isl_surface_state8.c
 
 ISL_GEN9_FILES = \
 	isl/isl_gen9.c \
 	isl/isl_gen9.h \
-	isl/isl_emit_depth_stencil.c \
-	isl/isl_surface_state.c
+	isl/isl_emit_depth_stencil9.c \
+	isl/isl_surface_state9.c
 
 ISL_GEN10_FILES = \
-	isl/isl_emit_depth_stencil.c \
-	isl/isl_surface_state.c
+	isl/isl_emit_depth_stencil10.c \
+	isl/isl_surface_state10.c
 
 ISL_GEN11_FILES = \
-	isl/isl_emit_depth_stencil.c \
-	isl/isl_surface_state.c
+	isl/isl_emit_depth_stencil11.c \
+	isl/isl_surface_state11.c
 
 ISL_GENERATED_FILES = \
 	isl/isl_format_layout.c

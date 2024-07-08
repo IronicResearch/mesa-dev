@@ -19,8 +19,8 @@ env.Prepend(CPPPATH = [Dir('.').abspath, Dir('common').abspath])
 env.Prepend(CPPPATH = [Dir('.').abspath, Dir('compiler').abspath])
 env.Prepend(CPPPATH = [Dir('.').abspath, Dir('genxml').abspath])
 env.Prepend(CPPPATH = [Dir('.').abspath, Dir('blorp').abspath])
-env.Prepend(CPPPATH = [Dir('.').abspath, Dir('isl').abspath])
 env.Prepend(CPPPATH = [Dir('.').abspath, Dir('dev').abspath])
+env.Prepend(CPPPATH = [Dir('.').abspath, Dir('isl').abspath])
 
 env.Append(CPPFLAGS = ['-Wno-pointer-arith','-Wno-vla'])
 
@@ -33,10 +33,73 @@ lib_intel_compiler = env.ConvenienceLibrary(target = 'lib_intel_compiler', sourc
 sources = env.ParseSourceList('Makefile.sources', ['BLORP_FILES'])
 lib_intel_blorp = env.ConvenienceLibrary(target = 'lib_intel_blorp', source = sources)
 
-sources = env.ParseSourceList('Makefile.sources', ['ISL_FILES','ISL_GENERATED_FILES'])
-lib_intel_isl = env.ConvenienceLibrary(target = 'lib_intel_isl', source = sources)
-
 sources = env.ParseSourceList('Makefile.sources', ['DEV_FILES'])
 lib_intel_dev = env.ConvenienceLibrary(target = 'lib_intel_dev', source = sources)
 
-Export(['lib_intel_common','lib_intel_compiler','lib_intel_blorp','lib_intel_isl','lib_intel_dev'])
+env_gen4 = env.Clone()
+env_gen4.Append(CPPDEFINES = ['GEN_VERSIONx10=40'])
+src_gen4 = env_gen4.ParseSourceList('Makefile.sources', 'ISL_GEN4_FILES')
+lib_isl_gen4 = env_gen4.ConvenienceLibrary(target = 'lib_isl_gen4', source = src_gen4)
+
+env_gen5 = env.Clone()
+env_gen5.Append(CPPDEFINES = ['GEN_VERSIONx10=50'])
+src_gen5 = env_gen5.ParseSourceList('Makefile.sources', 'ISL_GEN5_FILES')
+lib_isl_gen5 = env_gen5.ConvenienceLibrary(target = 'lib_isl_gen5', source = src_gen5)
+
+env_gen6 = env.Clone()
+env_gen6.Append(CPPDEFINES = ['GEN_VERSIONx10=60'])
+src_gen6 = env_gen6.ParseSourceList('Makefile.sources', 'ISL_GEN6_FILES')
+lib_isl_gen6 = env_gen6.ConvenienceLibrary(target = 'lib_isl_gen6', source = src_gen6)
+
+env_gen7 = env.Clone()
+env_gen7.Append(CPPDEFINES = ['GEN_VERSIONx10=70'])
+src_gen7 = env_gen7.ParseSourceList('Makefile.sources', 'ISL_GEN7_FILES')
+lib_isl_gen7 = env_gen7.ConvenienceLibrary(target = 'lib_isl_gen7', source = src_gen7)
+
+env_gen75 = env.Clone()
+env_gen75.Append(CPPDEFINES = ['GEN_VERSIONx10=75'])
+src_gen75 = env_gen75.ParseSourceList('Makefile.sources', 'ISL_GEN75_FILES')
+lib_isl_gen75 = env_gen75.ConvenienceLibrary(target = 'lib_isl_gen75', source = src_gen75)
+
+env_gen8 = env.Clone()
+env_gen8.Append(CPPDEFINES = ['GEN_VERSIONx10=80'])
+src_gen8 = env_gen8.ParseSourceList('Makefile.sources', 'ISL_GEN8_FILES')
+lib_isl_gen8 = env_gen8.ConvenienceLibrary(target = 'lib_isl_gen8', source = src_gen8)
+
+env_gen9 = env.Clone()
+env_gen9.Append(CPPDEFINES = ['GEN_VERSIONx10=90'])
+src_gen9 = env_gen9.ParseSourceList('Makefile.sources', 'ISL_GEN9_FILES')
+lib_isl_gen9 = env_gen9.ConvenienceLibrary(target = 'lib_isl_gen9', source = src_gen9)
+
+env_gen10 = env.Clone()
+env_gen10.Append(CPPDEFINES = ['GEN_VERSIONx10=100'])
+src_gen10 = env_gen10.ParseSourceList('Makefile.sources', 'ISL_GEN10_FILES')
+lib_isl_gen10 = env_gen10.ConvenienceLibrary(target = 'lib_isl_gen10', source = src_gen10)
+
+env_gen11 = env.Clone()
+env_gen11.Append(CPPDEFINES = ['GEN_VERSIONx10=110'])
+src_gen11 = env_gen11.ParseSourceList('Makefile.sources', 'ISL_GEN11_FILES')
+lib_isl_gen11 = env_gen11.ConvenienceLibrary(target = 'lib_isl_gen11', source = src_gen11)
+
+env.Prepend(LIBS = [
+    lib_isl_gen4,
+    lib_isl_gen5,
+    lib_isl_gen6,
+    lib_isl_gen7,
+    lib_isl_gen75,
+    lib_isl_gen8,
+    lib_isl_gen9,
+    lib_isl_gen10,
+    lib_isl_gen11,
+])
+
+sources = env.ParseSourceList('Makefile.sources', ['ISL_FILES','ISL_GENERATED_FILES'])
+lib_intel_isl = env.ConvenienceLibrary(target = 'lib_intel_isl', source = sources)
+
+#env.Alias('lib_intel_isl',lib_intel_isl)
+
+Export(['lib_intel_common','lib_intel_compiler','lib_intel_blorp','lib_intel_dev','lib_intel_isl'])
+Export(['lib_isl_gen4','lib_isl_gen5','lib_isl_gen6','lib_isl_gen7','lib_isl_gen75','lib_isl_gen8',
+	'lib_isl_gen9','lib_isl_gen10','lib_isl_gen11'])
+
+#FIXME: static linking 'isl' libs missing 'isl_genX' import functions, so explicitly link them

@@ -106,8 +106,17 @@ env.Prepend(LIBS = [
     lib_intel_common,
     lib_intel_compiler,
     lib_intel_blorp,
-    lib_intel_isl,
     lib_intel_dev,
+    lib_intel_isl,
+    lib_isl_gen4,
+    lib_isl_gen5,
+    lib_isl_gen6,
+    lib_isl_gen7,
+    lib_isl_gen75,
+    lib_isl_gen8,
+    lib_isl_gen9,
+    lib_isl_gen10,
+    lib_isl_gen11,
 ])
 
 # LIBS to link driver for DRM platform imports
