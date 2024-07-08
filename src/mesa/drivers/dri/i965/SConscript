@@ -93,6 +93,7 @@ env.Prepend(LIBS = [
     megadrivers_stub,
     dri_common,
     nir,
+    spirv,
     lib_gen11,
     lib_gen5,
     lib_gen6,
@@ -120,7 +121,7 @@ env.Prepend(LIBS = [
 ])
 
 # LIBS to link driver for DRM platform imports
-env.Append(LIBS = ['drm','drm_intel','expat'])
+env.Append(LIBS = ['drm','drm_intel','expat','z'])
 #env.Append(LIBPATH = ['/usr/lib/i386-linux-gnu'])
 #libpath = ''
 #env.Command(target = libpath, source = 'libdrm', action = "pkg-config --variable=libdir $SOURCE > $TARGET")

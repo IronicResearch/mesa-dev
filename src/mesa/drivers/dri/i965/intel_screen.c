@@ -1750,9 +1750,9 @@ intelCreateBuffer(__DRIscreen *dri_screen,
    }
 
    if (mesaVis->stereoMode) {
-      rb = intel_create_renderbuffer(rgbFormat, num_samples);
+      rb = intel_create_winsys_renderbuffer(screen, rgbFormat, num_samples);
       _mesa_attach_and_own_rb(fb, BUFFER_FRONT_RIGHT, &rb->Base.Base);
-      rb = intel_create_renderbuffer(rgbFormat, num_samples);
+      rb = intel_create_winsys_renderbuffer(screen, rgbFormat, num_samples);
       _mesa_attach_and_own_rb(fb, BUFFER_BACK_RIGHT, &rb->Base.Base);
    }
 

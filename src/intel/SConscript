@@ -12,6 +12,7 @@ env.Prepend(CPPPATH = [
     '#src/mesa',
     '#src/gallium/include',
     '#src/gallium/auxiliary',
+    '#src/compiler/nir',
 ])
 
 # Make generated headers reachable from the include path.
@@ -27,7 +28,7 @@ env.Append(CPPFLAGS = ['-Wno-pointer-arith','-Wno-vla'])
 sources = env.ParseSourceList('Makefile.sources', ['COMMON_FILES'])
 lib_intel_common = env.ConvenienceLibrary(target = 'lib_intel_common', source = sources)
 
-sources = env.ParseSourceList('Makefile.sources', ['COMPILER_FILES'])
+sources = env.ParseSourceList('Makefile.sources', ['COMPILER_FILES','COMPILER_GENERATED_FILES'])
 lib_intel_compiler = env.ConvenienceLibrary(target = 'lib_intel_compiler', source = sources)
 
 sources = env.ParseSourceList('Makefile.sources', ['BLORP_FILES'])
