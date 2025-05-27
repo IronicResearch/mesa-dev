@@ -365,8 +365,11 @@ dri3_swap_thread(void* data)
    while (draw->stereo_swap) {
       usleep(swap_delay);
       loader_dri3_swapbuffer_barrier(draw);
+#if 1
       loader_dri3_flush(draw, flags, __DRI2_THROTTLE_SWAPBUFFER);
-      //loader_dri3_swap_buffers_msc(draw, 0, 0, 0, flags, NULL, 0, false);
+#else
+      loader_dri3_swap_buffers_msc(draw, 0, 0, 0, flags, NULL, 0, false);
+#endif
       counter++;
       flags ^= __DRI2_FLUSH_STEREO;
    }
@@ -381,7 +384,6 @@ loader_dri3_drawable_fini(struct loader_dri3_drawable *draw)
 
    if (draw->stereo) {
       draw->stereo_swap = false;
-      //pthread_cancel(draw->thread);
       pthread_join(draw->thread, NULL);
       printf("%s: stereo = %d, swap = %d, pthread terminated\n", 
         __func__, draw->stereo, draw->stereo_swap);
@@ -427,6 +429,7 @@ loader_dri3_drawable_init(xcb_connection_t *conn,
    xcb_generic_error_t *error;
    GLint vblank_mode = DRI_CONF_VBLANK_DEF_INTERVAL_1;
    int swap_interval;
+   int ret = 0;
 
    draw->conn = conn;
    draw->ext = ext;
@@ -515,12 +518,11 @@ loader_dri3_drawable_init(xcb_connection_t *conn,
    }
 
    if (draw->stereo) {
-      int ret;
       draw->stereo_swap = true;
-      swap_interval = 1;
       ret = pthread_create(&draw->thread, NULL, dri3_swap_thread, draw);
       printf("%s: stereo = %d, swap = %d, pthread return = %d\n", 
         __func__, draw->stereo, draw->stereo_swap, ret);
+      swap_interval = 1;
    }
 
    /*
