@@ -57,6 +57,10 @@
 #define wsi_display_debug_code(...)
 #endif
 
+#ifndef DRM_MODE_PAGE_FLIP_TARGET_STEREO
+#define DRM_MODE_PAGE_FLIP_TARGET_STEREO  (DRM_MODE_PAGE_FLIP_TARGET_RELATIVE << 1)
+#endif
+
 /* These have lifetime equal to the instance, so they effectively
  * never go away. This means we must keep track of them separately
  * from all other resources.
@@ -1734,6 +1738,15 @@ _wsi_display_queue_next(struct wsi_swapchain *drv_chain)
 
       int ret;
       if (connector->active) {
+         uint32_t target = 0;
+         uint32_t flags = DRM_MODE_PAGE_FLIP_EVENT;
+         if (getenv("MESA_GLX_FORCE_STEREO")) {
+            flags |= DRM_MODE_PAGE_FLIP_TARGET_STEREO;
+            target = image->base.row_pitches[0] * image->base.offsets[0]; // FIXME
+            ret = drmModePageFlipTarget(wsi->fd, connector->crtc_id, image->fb_id,
+                                   flags, image, target);
+         }
+         else
          ret = drmModePageFlip(wsi->fd, connector->crtc_id, image->fb_id,
                                    DRM_MODE_PAGE_FLIP_EVENT, image);
          if (ret == 0) {
