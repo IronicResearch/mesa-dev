@@ -361,15 +361,15 @@ dri3_swap_thread(void* data)
    unsigned int flags = __DRI2_FLUSH_DRAWABLE | __DRI2_FLUSH_CONTEXT;
    unsigned int swap_delay = 8333; // 16ms @60Hz .. 8ms @120Hz
    static int counter = 0;
+   int swapmode = atoi(getenv("MESA_GLX_FORCE_STEREO"));
 
    while (draw->stereo_swap) {
       usleep(swap_delay);
       loader_dri3_swapbuffer_barrier(draw);
-#if 1
-      loader_dri3_flush(draw, flags, __DRI2_THROTTLE_SWAPBUFFER);
-#else
-      loader_dri3_swap_buffers_msc(draw, 0, 0, 0, flags, NULL, 0, false);
-#endif
+      if (swapmode == 1)
+         loader_dri3_flush(draw, flags, __DRI2_THROTTLE_SWAPBUFFER);
+      else
+         loader_dri3_swap_buffers_msc(draw, 0, 0, 0, flags, NULL, 0, false);
       counter++;
       flags ^= __DRI2_FLUSH_STEREO;
    }
