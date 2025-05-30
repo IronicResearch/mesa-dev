@@ -939,9 +939,6 @@ init_fbconfig_for_chooser(struct glx_config * config,
       config->renderType = GLX_RGBA_BIT;
    }
 
-   if (getenv("MESA_GLX_FORCE_STEREO"))
-      config->stereoMode = GLX_DONT_CARE;
-
    config->drawableType = GLX_WINDOW_BIT;
    config->visualRating = GLX_DONT_CARE;
    config->transparentPixel = GLX_NONE;

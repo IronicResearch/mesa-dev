@@ -237,16 +237,15 @@ driConfigEqual(const __DRIcoreExtension *core,
          }
          break;
 
-      // FIXME
+      // FIXME: STEREO attribute should have been set independently of
+      // DOUBLE_BUFFER attribute, instead of getting forced together
       case __DRI_ATTRIB_STEREO: {
          int r = scalarEqual(config, attrib, value);
-         printf("__DRI_ATTRIB_STEREO: %d\n", r);
          return (r) ? GL_TRUE : GL_FALSE;
       }
 
       case __DRI_ATTRIB_DOUBLE_BUFFER: {
          int r = scalarEqual(config, attrib, value);
-         //printf("__DRI_ATTRIB_DOUBLE_BUFFER: %d\n", r);
          if (r && getenv("MESA_GLX_FORCE_STEREO"))
             config->stereoMode = config->doubleBufferMode;
          return (r) ? GL_TRUE : GL_FALSE;

@@ -2260,9 +2260,6 @@ brw_screen_make_configs(__DRIscreen *dri_screen)
 
    unsigned num_formats = ARRAY_SIZE(formats);
 
-//   if (getenv("MESA_GLX_FORCE_STEREO"))
-//      back_buffer_modes[1] = __DRI_ATTRIB_SWAP_EXCHANGE;
-
    /* Generate singlesample configs, each without accumulation buffer
     * and with EGL_MUTABLE_RENDER_BUFFER_BIT_KHR.
     */
