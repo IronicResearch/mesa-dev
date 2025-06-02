@@ -88,10 +88,8 @@ loader_set_logger(loader_logger *logger);
 loader_logger *
 loader_get_logger(void);
 
-extern loader_logger* log_;
-
-#define LOGI(...)	log_(_LOADER_INFO, __VA_ARGS__)
-#define LOGD(...)	log_(_LOADER_DEBUG, __VA_ARGS__)
+#define LOGI(...)	loader_get_logger()(_LOADER_INFO, __VA_ARGS__)
+#define LOGD(...)	loader_get_logger()(_LOADER_DEBUG, __VA_ARGS__)
 
 char *
 loader_get_extensions_name(const char *driver_name);
