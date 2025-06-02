@@ -35,6 +35,7 @@
 
 #include <X11/Xlib-xcb.h>
 
+#include "loader.h"
 #include "loader_dri_helper.h"
 #include "loader_dri3_helper.h"
 #include "util/macros.h"
@@ -385,7 +386,7 @@ loader_dri3_drawable_fini(struct loader_dri3_drawable *draw)
    if (draw->stereo) {
       draw->stereo_swap = false;
       pthread_join(draw->thread, NULL);
-      printf("%s: stereo = %d, swap = %d, pthread terminated\n", 
+      LOGI("%s: stereo = %d, swap = %d, pthread terminated\n", 
         __func__, draw->stereo, draw->stereo_swap);
    }
 
@@ -520,7 +521,7 @@ loader_dri3_drawable_init(xcb_connection_t *conn,
    if (draw->stereo) {
       draw->stereo_swap = true;
       ret = pthread_create(&draw->thread, NULL, dri3_swap_thread, draw);
-      printf("%s: stereo = %d, swap = %d, pthread return = %d\n", 
+      LOGI("%s: stereo = %d, swap = %d, pthread return = %d\n", 
         __func__, draw->stereo, draw->stereo_swap, ret);
       swap_interval = 1;
    }

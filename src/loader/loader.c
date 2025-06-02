@@ -77,7 +77,7 @@ static void default_logger(int level, const char *fmt, ...)
    }
 }
 
-static loader_logger *log_ = default_logger;
+/* static */ loader_logger *log_ = default_logger;
 
 int
 loader_open_device(const char *device_name)
@@ -497,6 +497,12 @@ void
 loader_set_logger(loader_logger *logger)
 {
    log_ = logger;
+}
+
+loader_logger *
+loader_get_logger(void)
+{
+   return log_;
 }
 
 char *
