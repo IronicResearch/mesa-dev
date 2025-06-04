@@ -1060,13 +1060,15 @@ intel_screen_make_configs(__DRIscreen *dri_screen)
 
    /* __DRI_ATTRIB_SWAP_COPY is not supported due to page flipping. */
    static const GLenum back_buffer_modes[] = {
-      __DRI_ATTRIB_SWAP_UNDEFINED, __DRI_ATTRIB_SWAP_NONE
+      __DRI_ATTRIB_SWAP_UNDEFINED, __DRI_ATTRIB_SWAP_NONE, __DRI_ATTRIB_STEREO
    };
 
    static const uint8_t singlesample_samples[1] = {0};
 
    uint8_t depth_bits[4], stencil_bits[4];
    __DRIconfig **configs = NULL;
+
+   unsigned int num_bufmodes = (dri_screen->stereo_mode) ? 3 : 2;
 
    /* Generate singlesample configs without accumulation buffer. */
    for (int i = 0; i < ARRAY_SIZE(formats); i++) {
@@ -1092,7 +1094,7 @@ intel_screen_make_configs(__DRIscreen *dri_screen)
                                      depth_bits,
                                      stencil_bits,
                                      num_depth_stencil_bits,
-                                     back_buffer_modes, 2,
+                                     back_buffer_modes, num_bufmodes,
                                      singlesample_samples, 1,
                                      false, false);
       configs = driConcatConfigs(configs, new_configs);
