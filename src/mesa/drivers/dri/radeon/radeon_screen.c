@@ -824,7 +824,7 @@ __DRIconfig **radeonInitScreen2(__DRIscreen *psp)
    };
 
    static const GLenum back_buffer_modes[] = {
-      __DRI_ATTRIB_SWAP_NONE, __DRI_ATTRIB_SWAP_UNDEFINED
+      __DRI_ATTRIB_SWAP_NONE, __DRI_ATTRIB_SWAP_UNDEFINED, __DRI_ATTRIB_STEREO
    };
    uint8_t depth_bits[4], stencil_bits[4], msaa_samples_array[1];
    int color;
