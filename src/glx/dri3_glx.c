@@ -965,12 +965,8 @@ dri3_create_screen(int screen, struct glx_display * priv)
    psc->loader_dri3_ext.image = psc->image;
    psc->loader_dri3_ext.config = psc->config;
 
-
-   // FIXME: driver_comfigs filtered out stereoModes 
-   
    configs = driConvertConfigs(psc->core, psc->base.configs, driver_configs);
    visuals = driConvertConfigs(psc->core, psc->base.visuals, driver_configs);
-
 
    if (!configs || !visuals) {
        ErrorMessageF("No matching fbConfigs or visuals found\n");

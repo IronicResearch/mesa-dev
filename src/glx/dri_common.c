@@ -43,6 +43,7 @@
 #include "loader.h"
 #include <X11/Xlib-xcb.h>
 #include <xcb/xproto.h>
+#include "mesa/drivers/dri/common/utils.h"
 
 #ifndef RTLD_NOW
 #define RTLD_NOW 0
@@ -114,7 +115,7 @@ static const struct
       __ATTRIB(__DRI_ATTRIB_SAMPLE_BUFFERS, sampleBuffers),
       __ATTRIB(__DRI_ATTRIB_SAMPLES, samples),
       __ATTRIB(__DRI_ATTRIB_DOUBLE_BUFFER, doubleBufferMode),
-      __ATTRIB(__DRI_ATTRIB_STEREO, stereoMode),   // FIXME      
+      __ATTRIB(__DRI_ATTRIB_STEREO, stereoMode),  
       __ATTRIB(__DRI_ATTRIB_AUX_BUFFERS, numAuxBuffers),
       __ATTRIB(__DRI_ATTRIB_SWAP_METHOD, swapMethod),
       __ATTRIB(__DRI_ATTRIB_BIND_TO_TEXTURE_RGB, bindToTextureRgb),
@@ -237,18 +238,20 @@ driConfigEqual(const __DRIcoreExtension *core,
          }
          break;
 
-      // FIXME: STEREO attribute should have been set independently of
-      // DOUBLE_BUFFER attribute, instead of getting forced together
       case __DRI_ATTRIB_STEREO: {
          int r = scalarEqual(config, attrib, value);
-         return (r) ? GL_TRUE : GL_FALSE;
+         if (r == 0)
+            return GL_FALSE;
+         break;
       }
 
       case __DRI_ATTRIB_DOUBLE_BUFFER: {
          int r = scalarEqual(config, attrib, value);
-         if (r && getenv("MESA_GLX_FORCE_STEREO"))
+         if (r == 0)
+            return GL_FALSE;
+         if (driConfig->modes.stereoMode)
             config->stereoMode = config->doubleBufferMode;
-         return (r) ? GL_TRUE : GL_FALSE;
+         break;
       }
 
       default:

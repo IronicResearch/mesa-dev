@@ -224,6 +224,8 @@ struct __DRIscreenRec {
     driOptionCache optionCache;
 
     unsigned int api_mask;
+
+    int stereo_mode;
 };
 
 /**

@@ -2248,7 +2248,7 @@ brw_screen_make_configs(__DRIscreen *dri_screen)
 
    /* __DRI_ATTRIB_SWAP_COPY is not supported due to page flipping. */
    static /* const */ GLenum back_buffer_modes[] = {
-      __DRI_ATTRIB_SWAP_UNDEFINED, __DRI_ATTRIB_SWAP_NONE
+      __DRI_ATTRIB_SWAP_UNDEFINED, __DRI_ATTRIB_SWAP_NONE, __DRI_ATTRIB_STEREO
    };
 
    static const uint8_t singlesample_samples[1] = {0};
@@ -2259,6 +2259,10 @@ brw_screen_make_configs(__DRIscreen *dri_screen)
    __DRIconfig **configs = NULL;
 
    unsigned num_formats = ARRAY_SIZE(formats);
+   unsigned num_bufmodes = 2;
+
+   if (dri_screen->stereo_mode)
+      num_bufmodes = 3;
 
    /* Generate singlesample configs, each without accumulation buffer
     * and with EGL_MUTABLE_RENDER_BUFFER_BIT_KHR.
@@ -2298,7 +2302,7 @@ brw_screen_make_configs(__DRIscreen *dri_screen)
                                      depth_bits,
                                      stencil_bits,
                                      num_depth_stencil_bits,
-                                     back_buffer_modes, 2,
+                                     back_buffer_modes, num_bufmodes,
                                      singlesample_samples, 1,
                                      false, false);
       configs = driConcatConfigs(configs, new_configs);

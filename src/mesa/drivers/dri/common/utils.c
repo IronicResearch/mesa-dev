@@ -229,7 +229,6 @@ driCreateConfigs(mesa_format format,
    int alpha_bits;
    bool is_srgb;
    bool is_float;
-   bool is_stereo = false;
 
    switch (format) {
    case MESA_FORMAT_B5G6R5_UNORM:
@@ -240,13 +239,11 @@ driCreateConfigs(mesa_format format,
    case MESA_FORMAT_B8G8R8X8_SRGB:
       masks = format_table[1].masks;
       shifts = format_table[1].shifts;
-      is_stereo = getenv("MESA_GLX_FORCE_STEREO");
       break;
    case MESA_FORMAT_B8G8R8A8_UNORM:
    case MESA_FORMAT_B8G8R8A8_SRGB:
       masks = format_table[2].masks;
       shifts = format_table[2].shifts;
-      is_stereo = getenv("MESA_GLX_FORCE_STEREO");
       break;
    case MESA_FORMAT_R8G8B8A8_UNORM:
    case MESA_FORMAT_R8G8B8A8_SRGB:
@@ -354,7 +351,7 @@ driCreateConfigs(mesa_format format,
 		    }
 		    else {
 		    	modes->doubleBufferMode = GL_TRUE;
-		    	if (is_stereo)
+		    	if (db_modes[i] == __DRI_ATTRIB_STEREO)
 		    		modes->stereoMode = GL_TRUE;
 		    	modes->swapMethod = db_modes[i];
 		    }

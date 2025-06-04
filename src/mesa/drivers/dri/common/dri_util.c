@@ -157,6 +157,10 @@ driCreateNewScreen2(int scrn, int fd,
     driParseConfigFiles(&psp->optionCache, &psp->optionInfo, psp->myNum,
                         "dri2", NULL, NULL, NULL, 0, NULL, 0);
 
+    /* detect stereo display mode option */
+    char* env = getenv("MESA_GLX_FORCE_STEREO");
+    psp->stereo_mode = (env) ? atoi(env) : 0;
+
     *driver_configs = psp->driver->InitScreen(psp);
     if (*driver_configs == NULL) {
 	free(psp);
