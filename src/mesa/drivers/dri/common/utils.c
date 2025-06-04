@@ -353,7 +353,7 @@ driCreateConfigs(mesa_format format,
 		    	modes->doubleBufferMode = GL_TRUE;
 		    	if (db_modes[i] == __DRI_ATTRIB_STEREO)
 		    		modes->stereoMode = GL_TRUE;
-		    	modes->swapMethod = db_modes[i];
+		    	modes->swapMethod = __DRI_ATTRIB_SWAP_UNDEFINED; //db_modes[i];
 		    }
 
 		    modes->samples = msaa_samples[h];
