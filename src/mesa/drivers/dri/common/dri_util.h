@@ -58,6 +58,7 @@
 #include "main/menums.h"
 #include "main/formats.h"
 #include "util/xmlconfig.h"
+#include "dri_recs.h"
 #include <stdbool.h>
 
 struct gl_config;
@@ -160,6 +161,7 @@ struct __DriverAPIRec {
 extern const struct __DriverAPIRec driDriverAPI;
 extern const struct __DriverAPIRec *globalDriverAPI;
 
+#ifndef _DRI_RECS_H_
 /**
  * Per-screen private driver information.
  */
@@ -227,6 +229,7 @@ struct __DRIscreenRec {
 
     int stereo_mode;
 };
+#endif
 
 /**
  * Per-context private driver information.

@@ -35,11 +35,16 @@
 
 #include <X11/Xlib-xcb.h>
 
+#ifdef HAVE_LIBDRM
+#include <xf86drm.h>
+#endif
+
 #include "loader.h"
 #include "loader_dri_helper.h"
 #include "loader_dri3_helper.h"
 #include "util/macros.h"
 #include "drm-uapi/drm_fourcc.h"
+#include "mesa/drivers/dri/common/dri_recs.h"
 
 /* From driconf.h, user exposed so should be stable */
 #define DRI_CONF_VBLANK_NEVER 0
@@ -355,6 +360,33 @@ dri3_free_render_buffer(struct loader_dri3_drawable *draw,
    free(buffer);
 }
 
+static int
+dri3_wait_for_vblank(int fd)
+{
+#ifdef HAVE_LIBDRM
+   static bool loaded = false;
+
+   if (fd < 0) {
+      fd = loader_get_user_preferred_fd(fd, &loaded);
+      LOGD("%s: loader_get_user_preferred_fd = %d\n", __func__, fd);
+      if (fd < 0)
+         return -1;
+   }
+
+   drmVBlank vb = { .request = { DRM_VBLANK_RELATIVE, 1, 0} };
+   int r = drmWaitVBlank(fd, &vb);
+
+   if (!loaded) {
+      LOGD("%s: vblank returned = %d for fd = %d\n", __func__, r, fd);
+      loaded = true;
+   }
+
+   return r;
+#else
+   return -1;
+#endif
+}
+
 static void* 
 dri3_swap_thread(void* data)
 {
@@ -362,10 +394,12 @@ dri3_swap_thread(void* data)
    unsigned int flags = __DRI2_FLUSH_DRAWABLE | __DRI2_FLUSH_CONTEXT;
    unsigned int swap_delay = 8333; // 16ms @60Hz .. 8ms @120Hz
    static int counter = 0;
-   int swapmode = atoi(getenv("MESA_GLX_FORCE_STEREO"));
+   int swapmode = draw->dri_screen->stereo_mode;
 
    while (draw->stereo_swap) {
-      usleep(swap_delay);
+      int r = dri3_wait_for_vblank(draw->dri_screen->fd);
+      if (r != 0)
+         usleep(swap_delay);
       loader_dri3_swapbuffer_barrier(draw);
       if (swapmode == 1)
          loader_dri3_flush(draw, flags, __DRI2_THROTTLE_SWAPBUFFER);
