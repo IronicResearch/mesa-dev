@@ -366,13 +366,6 @@ dri3_wait_for_vblank(int fd)
 #ifdef HAVE_LIBDRM
    static bool loaded = false;
 
-   if (fd < 0) {
-      fd = loader_get_user_preferred_fd(fd, &loaded);
-      LOGD("%s: loader_get_user_preferred_fd = %d\n", __func__, fd);
-      if (fd < 0)
-         return -1;
-   }
-
    drmVBlank vb = { .request = { DRM_VBLANK_RELATIVE, 1, 0} };
    int r = drmWaitVBlank(fd, &vb);
 
