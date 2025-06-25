@@ -37,6 +37,7 @@
 
 #ifdef HAVE_LIBDRM
 #include <xf86drm.h>
+#include <xf86drmMode.h>
 #endif
 
 #include "loader.h"
@@ -380,12 +381,34 @@ dri3_wait_for_vblank(int fd)
 #endif
 }
 
+static unsigned int
+dri3_get_refresh_interval(int fd)
+{
+   unsigned int refresh = 60;
+#ifdef HAVE_LIBDRM
+   drmModeRes*        resources = drmModeGetResources(fd);
+   drmModeConnector*  connector = drmModeGetConnector(fd, resources->connectors[0]);
+   drmModeEncoder*    encoder   = drmModeGetEncoder(fd, connector->encoder_id);
+   drmModeCrtc*       crtc      = drmModeGetCrtc(fd, encoder->crtc_id);
+
+   if (crtc->mode.vrefresh > 0)
+      refresh = crtc->mode.vrefresh;
+   LOGD("%s: refresh returned = %d Hz for fd = %d\n", __func__, refresh, fd);
+
+   drmModeFreeCrtc(crtc);
+   drmModeFreeEncoder(encoder);
+   drmModeFreeConnector(connector);
+   drmModeFreeResources(resources);
+#endif
+   return 1000000 / refresh;
+}
+
 static void* 
 dri3_swap_thread(void* data)
 {
    struct loader_dri3_drawable *draw = (struct loader_dri3_drawable *)data;
    unsigned int flags = __DRI2_FLUSH_DRAWABLE | __DRI2_FLUSH_CONTEXT;
-   unsigned int swap_delay = 8333; // 16ms @60Hz .. 8ms @120Hz
+   unsigned int swap_delay = dri3_get_refresh_interval(draw->dri_screen->fd); // 16ms @60Hz .. 8ms @120Hz
    static int counter = 0;
    int swapmode = draw->dri_screen->stereo_mode;
 
