@@ -892,7 +892,7 @@ intel_update_image_buffers(struct intel_context *intel, __DRIdrawable *drawable)
    front_rb = intel_get_renderbuffer(fb, BUFFER_FRONT_LEFT);
    back_rb = intel_get_renderbuffer(fb, BUFFER_BACK_LEFT);
 
-   if (stereo && swap) {
+   if (stereo && intel_get_stereo_swap()) {
       back_rb = intel_get_renderbuffer(fb, BUFFER_BACK_RIGHT);
       front_rb = intel_get_renderbuffer(fb, BUFFER_FRONT_RIGHT);
    }

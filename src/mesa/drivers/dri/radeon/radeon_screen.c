@@ -186,6 +186,12 @@ static const __DRItexBufferExtension r200TexBufferExtension = {
 };
 #endif
 
+static bool stereo_swap = false;
+static bool radeon_get_stereo_swap(void)
+{
+    return stereo_swap;
+}
+
 static void
 radeonDRI2Flush(__DRIdrawable *drawable)
 {
@@ -195,11 +201,26 @@ radeonDRI2Flush(__DRIdrawable *drawable)
     radeonFlush(&rmesa->glCtx, 0);
 }
 
+static void
+radeonDRI2FlushWithFlags(__DRIcontext *ctx,
+                         __DRIdrawable *drawable,
+                         unsigned flags,
+                         enum __DRI2throttleReason throttle_reason)
+{
+    radeonContextPtr rmesa;
+
+    rmesa = (radeonContextPtr) drawable->driContextPriv->driverPrivate;
+    if (flags & __DRI2_FLUSH_STEREO)
+        stereo_swap = true;
+    radeonFlush(&rmesa->glCtx, flags);
+}
+
 static const struct __DRI2flushExtensionRec radeonFlushExtension = {
-   .base = { __DRI2_FLUSH, 3 },
+   .base = { __DRI2_FLUSH, 4 },
 
    .flush               = radeonDRI2Flush,
    .invalidate          = dri2InvalidateDrawable,
+   .flush_with_flags    = radeonDRI2FlushWithFlags,
 };
 
 static __DRIimage *
@@ -719,7 +740,7 @@ radeonCreateBuffer( __DRIscreen *driScrnPriv,
       rfb->color_rb[1]->has_surface = 1;
     }
 
-    // TODO: stereo front & back buffers
+    /* stereo front & back buffers */
     if (mesaVis->stereoMode) {
       rfb->color_rb[2] = radeon_create_renderbuffer(rgbFormat, driDrawPriv);
       _mesa_attach_and_own_rb(&rfb->base, BUFFER_FRONT_RIGHT, &rfb->color_rb[2]->base.Base);
@@ -826,6 +847,7 @@ __DRIconfig **radeonInitScreen2(__DRIscreen *psp)
    static const GLenum back_buffer_modes[] = {
       __DRI_ATTRIB_SWAP_NONE, __DRI_ATTRIB_SWAP_UNDEFINED, __DRI_ATTRIB_STEREO
    };
+   unsigned int num_bufmodes = (psp->stereo_mode) ? 3 : 2;
    uint8_t depth_bits[4], stencil_bits[4], msaa_samples_array[1];
    int color;
    __DRIconfig **configs = NULL;
@@ -855,7 +877,7 @@ __DRIconfig **radeonInitScreen2(__DRIscreen *psp)
 				     stencil_bits,
 				     ARRAY_SIZE(depth_bits),
 				     back_buffer_modes,
-				     ARRAY_SIZE(back_buffer_modes),
+				     num_bufmodes,
 				     msaa_samples_array,
 				     ARRAY_SIZE(msaa_samples_array),
 				     GL_TRUE, GL_FALSE);

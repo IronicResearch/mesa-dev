@@ -1979,7 +1979,7 @@ brw_update_image_buffers(struct brw_context *brw, __DRIdrawable *drawable)
    front_rb = brw_get_renderbuffer(fb, BUFFER_FRONT_LEFT);
    back_rb = brw_get_renderbuffer(fb, BUFFER_BACK_LEFT);
 
-   if (stereo && swap) {
+   if (stereo && brw_get_stereo_swap()) {
       back_rb = brw_get_renderbuffer(fb, BUFFER_BACK_RIGHT);
       front_rb = brw_get_renderbuffer(fb, BUFFER_FRONT_RIGHT);
    }

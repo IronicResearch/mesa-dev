@@ -408,7 +408,7 @@ dri3_swap_thread(void* data)
 {
    struct loader_dri3_drawable *draw = (struct loader_dri3_drawable *)data;
    unsigned int flags = __DRI2_FLUSH_DRAWABLE | __DRI2_FLUSH_CONTEXT;
-   unsigned int swap_delay = dri3_get_refresh_interval(draw->dri_screen->fd); // 16ms @60Hz .. 8ms @120Hz
+   unsigned int swap_delay = dri3_get_refresh_interval(draw->dri_screen->fd);
    static int counter = 0;
    int swapmode = draw->dri_screen->stereo_mode;
 

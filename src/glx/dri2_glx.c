@@ -49,6 +49,7 @@
 #include "dri_common.h"
 #include "dri2_priv.h"
 #include "loader.h"
+#include "mesa/drivers/dri/common/dri_recs.h"
 
 /* From driconf.h, user exposed so should be stable */
 #define DRI_CONF_VBLANK_NEVER 0
@@ -795,6 +796,8 @@ dri2SwapBuffers(__GLXDRIdrawable *pdraw, int64_t target_msc, int64_t divisor,
        unsigned flags = __DRI2_FLUSH_DRAWABLE;
        if (flush)
           flags |= __DRI2_FLUSH_CONTEXT;
+       if (psc->driScreen->stereo_mode)
+          flags |= __DRI2_FLUSH_STEREO;
        dri2Flush(psc, ctx, priv, flags, __DRI2_THROTTLE_SWAPBUFFER);
 
        ret = dri2XcbSwapBuffers(pdraw->psc->dpy, pdraw,
