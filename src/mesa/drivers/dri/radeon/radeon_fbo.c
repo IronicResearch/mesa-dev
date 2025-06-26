@@ -435,6 +435,7 @@ radeon_unmap_renderbuffer(struct gl_context *ctx,
 
    radeon_bo_unmap(rrb->map_bo);
 
+#if 0
    if (rrb->map_mode & GL_MAP_WRITE_BIT) {
       GLboolean ok;
       ok = rmesa->vtbl.blit(ctx, rrb->map_bo, 0,
@@ -450,6 +451,7 @@ radeon_unmap_renderbuffer(struct gl_context *ctx,
       assert(ok);
       (void) ok;
    }
+#endif
 
    radeon_bo_unref(rrb->map_bo);
    rrb->map_bo = NULL;
