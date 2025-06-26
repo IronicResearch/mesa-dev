@@ -1139,13 +1139,11 @@ fbconfig_compare(struct glx_config **a, struct glx_config **b)
 
    PREFER_SMALLER(rgbBits);
 
-#if 0
    if (((*a)->stereoMode != (*b)->stereoMode)) {
       /* Prefer single-buffer.
        */
       return (!(*a)->stereoMode) ? -1 : 1;
    }
-#endif
 
    if (((*a)->doubleBufferMode != (*b)->doubleBufferMode)) {
       /* Prefer single-buffer.

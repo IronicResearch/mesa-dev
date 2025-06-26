@@ -188,7 +188,7 @@ void radeon_draw_buffer(struct gl_context *ctx, struct gl_framebuffer *fb)
 	}
 
 	/* radeons only handle 1 color draw so far */
-	if (fb->_NumColorDrawBuffers != 1) {
+	if (fb->_NumColorDrawBuffers != 1 && !ctx->Visual.stereoMode) {
 		radeon->vtbl.fallback(ctx, RADEON_FALLBACK_DRAW_BUFFER, GL_TRUE);
 		return;
 	}
@@ -321,8 +321,11 @@ void radeonDrawBuffer(struct gl_context *ctx)
 	if (RADEON_DEBUG & RADEON_DRI)
 		fprintf(stderr, "%s\n", __func__);
 
-	if (_mesa_is_front_buffer_drawing(ctx->DrawBuffer)) {
+	if (_mesa_is_front_buffer_drawing(ctx->DrawBuffer) || ctx->Visual.stereoMode) {
 		radeonContextPtr radeon = RADEON_CONTEXT(ctx);
+
+		if (ctx->Visual.stereoMode)
+			radeonFlush(ctx, __DRI2_FLUSH_DRAWABLE);
 
 		/* If we might be front-buffer rendering on this buffer for
 		 * the first time, invalidate our DRI drawable so we'll ask

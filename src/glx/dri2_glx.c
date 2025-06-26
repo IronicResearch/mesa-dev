@@ -545,6 +545,11 @@ __dri2CopySubBuffer(__GLXDRIdrawable *pdraw, int x, int y,
    DRI2CopyRegion(psc->base.dpy, pdraw->xDrawable, region,
                   DRI2BufferFrontLeft, DRI2BufferBackLeft);
 
+#if 0  // FIXME: params not supported by X server
+   DRI2CopyRegion(psc->base.dpy, pdraw->xDrawable, region,
+                  DRI2BufferFrontRight, DRI2BufferBackRight);
+#endif
+
    /* Refresh the fake front (if present) after we just damaged the real
     * front.
     */
