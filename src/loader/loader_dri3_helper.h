@@ -193,6 +193,7 @@ struct loader_dri3_drawable {
 
    unsigned int stereo;
    bool stereo_swap;
+   bool swap_update;
    pthread_t thread;
 };
 

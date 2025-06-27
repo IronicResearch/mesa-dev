@@ -413,11 +413,12 @@ dri3_swap_thread(void* data)
    int swapmode = draw->dri_screen->stereo_mode;
 
    while (draw->stereo_swap) {
+      draw->swap_update = false;
       int r = dri3_wait_for_vblank(draw->dri_screen->fd);
       if (r != 0)
          usleep(swap_delay);
       loader_dri3_swapbuffer_barrier(draw);
-      if (swapmode == 1)
+      if (draw->swap_update)
          loader_dri3_flush(draw, flags, __DRI2_THROTTLE_SWAPBUFFER);
       else
          loader_dri3_swap_buffers_msc(draw, 0, 0, 0, flags, NULL, 0, false);
@@ -1250,6 +1251,7 @@ loader_dri3_swap_buffers_msc(struct loader_dri3_drawable *draw,
       if (draw->stamp)
          ++(*draw->stamp);
    }
+   draw->swap_update = true;
    mtx_unlock(&draw->mtx);
 
    draw->ext->flush->invalidate(draw->dri_drawable);
