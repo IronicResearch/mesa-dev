@@ -38,6 +38,9 @@
 #ifdef HAVE_LIBDRM
 #include <xf86drm.h>
 #include <xf86drmMode.h>
+#ifndef DRM_MODE_PAGE_FLIP_TARGET_STEREO
+#define DRM_MODE_PAGE_FLIP_TARGET_STEREO  (DRM_MODE_PAGE_FLIP_TARGET_RELATIVE << 1)
+#endif
 #endif
 
 #include "loader.h"
@@ -381,26 +384,59 @@ dri3_wait_for_vblank(int fd)
 #endif
 }
 
+static int
+dri3_get_crtc_context(struct loader_dri3_drawable *draw, int fd)
+{
+#ifdef HAVE_LIBDRM
+   draw->resources = drmModeGetResources(fd);
+   draw->connector = drmModeGetConnector(fd, draw->resources->connectors[0]);
+   draw->encoder   = drmModeGetEncoder(fd, draw->connector->encoder_id);
+   draw->crtc      = drmModeGetCrtc(fd, draw->encoder->crtc_id);
+#endif
+   return draw->crtc != NULL;
+}
+
+static void
+dri3_release_crtc_context(struct loader_dri3_drawable *draw)
+{
+#ifdef HAVE_LIBDRM
+   drmModeFreeCrtc(draw->crtc);
+   drmModeFreeEncoder(draw->encoder);
+   drmModeFreeConnector(draw->connector);
+   drmModeFreeResources(draw->resources);
+#endif
+}
+
 static unsigned int
-dri3_get_refresh_interval(int fd)
+dri3_get_refresh_interval(struct loader_dri3_drawable *draw, int fd)
 {
    unsigned int refresh = 60;
-#ifdef HAVE_LIBDRM
-   drmModeRes*        resources = drmModeGetResources(fd);
-   drmModeConnector*  connector = drmModeGetConnector(fd, resources->connectors[0]);
-   drmModeEncoder*    encoder   = drmModeGetEncoder(fd, connector->encoder_id);
-   drmModeCrtc*       crtc      = drmModeGetCrtc(fd, encoder->crtc_id);
 
-   if (crtc->mode.vrefresh > 0)
-      refresh = crtc->mode.vrefresh;
+   if (draw->crtc != NULL && draw->crtc->mode.vrefresh > 0)
+      refresh = draw->crtc->mode.vrefresh;
    LOGD("%s: refresh returned = %d Hz for fd = %d\n", __func__, refresh, fd);
 
-   drmModeFreeCrtc(crtc);
-   drmModeFreeEncoder(encoder);
-   drmModeFreeConnector(connector);
-   drmModeFreeResources(resources);
-#endif
    return 1000000 / refresh;
+}
+
+static struct loader_dri3_buffer *
+dri3_back_buffer(struct loader_dri3_drawable *draw);
+
+static int
+dri3_page_flip_enable(struct loader_dri3_drawable *draw, int fd, bool enable)
+{
+   int r = 0;
+#ifdef HAVE_LIBDRM
+   struct loader_dri3_buffer* buf = dri3_back_buffer(draw);
+   uint32_t offset = (enable) ? buf->size : 0;
+   uint32_t userdata = 0xdeadbeef;
+
+   r = drmModePageFlipTarget(fd, draw->crtc->crtc_id, draw->crtc->buffer_id,
+      DRM_MODE_PAGE_FLIP_EVENT | DRM_MODE_PAGE_FLIP_TARGET_STEREO,
+      &userdata, offset);
+   LOGD("%s: DRM PageFlipTarget returned = %d for fd = %d\n", __func__, r, fd);
+#endif
+   return r;
 }
 
 static void* 
@@ -408,9 +444,15 @@ dri3_swap_thread(void* data)
 {
    struct loader_dri3_drawable *draw = (struct loader_dri3_drawable *)data;
    unsigned int flags = __DRI2_FLUSH_DRAWABLE | __DRI2_FLUSH_CONTEXT;
-   unsigned int swap_delay = dri3_get_refresh_interval(draw->dri_screen->fd);
+   unsigned int swap_delay = 8333;
    static int counter = 0;
    int swapmode = draw->dri_screen->stereo_mode;
+
+   dri3_get_crtc_context(draw, draw->dri_screen->fd);
+   swap_delay = dri3_get_refresh_interval(draw, draw->dri_screen->fd);
+
+   if (swapmode == 2)
+      dri3_page_flip_enable(draw, draw->dri_screen->fd, true);
 
    while (draw->stereo_swap) {
       draw->swap_update = false;
@@ -425,6 +467,11 @@ dri3_swap_thread(void* data)
       counter++;
       flags ^= __DRI2_FLUSH_STEREO;
    }
+
+   if (swapmode == 2)
+      dri3_page_flip_enable(draw, draw->dri_screen->fd, false);
+
+   dri3_release_crtc_context(draw);
 
    return NULL;
 }

@@ -35,6 +35,11 @@
 #include <GL/internal/dri_interface.h>
 #include <c11/threads.h>
 
+#ifdef HAVE_LIBDRM
+#include <xf86drm.h>
+#include <xf86drmMode.h>
+#endif
+
 enum loader_dri3_buffer_type {
    loader_dri3_buffer_back = 0,
    loader_dri3_buffer_front = 1
@@ -195,6 +200,12 @@ struct loader_dri3_drawable {
    bool stereo_swap;
    bool swap_update;
    pthread_t thread;
+#ifdef HAVE_LIBDRM
+   drmModeRes*        resources;
+   drmModeConnector*  connector;
+   drmModeEncoder*    encoder;
+   drmModeCrtc*       crtc;
+#endif
 };
 
 void
