@@ -787,6 +787,7 @@ dri2SwapBuffers(__GLXDRIdrawable *pdraw, int64_t target_msc, int64_t divisor,
     struct dri2_display *pdp =
 	(struct dri2_display *)dpyPriv->dri2Display;
     int64_t ret = 0;
+    static unsigned int swap_flags = 0;
 
     /* Check we have the right attachments */
     if (!priv->have_back)
@@ -801,8 +802,10 @@ dri2SwapBuffers(__GLXDRIdrawable *pdraw, int64_t target_msc, int64_t divisor,
        unsigned flags = __DRI2_FLUSH_DRAWABLE;
        if (flush)
           flags |= __DRI2_FLUSH_CONTEXT;
-       if (psc->driScreen->stereo_mode)
-          flags |= __DRI2_FLUSH_STEREO;
+       if (psc->driScreen->stereo_mode) {
+          flags |= swap_flags;
+          swap_flags ^= __DRI2_FLUSH_STEREO;
+       }
        dri2Flush(psc, ctx, priv, flags, __DRI2_THROTTLE_SWAPBUFFER);
 
        ret = dri2XcbSwapBuffers(pdraw->psc->dpy, pdraw,
