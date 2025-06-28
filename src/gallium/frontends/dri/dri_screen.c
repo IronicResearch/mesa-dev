@@ -161,8 +161,9 @@ dri_fill_in_modes(struct dri_screen *screen)
 
    static const GLenum back_buffer_modes[] = {
       __DRI_ATTRIB_SWAP_NONE, __DRI_ATTRIB_SWAP_UNDEFINED,
-      __DRI_ATTRIB_SWAP_COPY
+      __DRI_ATTRIB_SWAP_COPY, __DRI_ATTRIB_STEREO
    };
+   unsigned int num_bufmodes = (screen->sPriv->stereo_mode) ? 4 : 3;
 
    if (driQueryOptionb(&screen->dev->option_cache, "always_have_depth_buffer")) {
       /* all visuals will have a depth buffer */
@@ -281,7 +282,7 @@ dri_fill_in_modes(struct dri_screen *screen)
             new_configs = driCreateConfigs(mesa_formats[format],
                                            depth_bits_array, stencil_bits_array,
                                            depth_buffer_factor, back_buffer_modes,
-                                           ARRAY_SIZE(back_buffer_modes),
+                                           num_bufmodes,
                                            msaa_modes+1, num_msaa_modes-1,
                                            GL_FALSE, !mixed_color_depth);
             configs = driConcatConfigs(configs, new_configs);
