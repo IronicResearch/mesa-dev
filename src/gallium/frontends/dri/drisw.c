@@ -464,6 +464,14 @@ static const __DRIrobustnessExtension dri2Robustness = {
    .base = { __DRI2_ROBUSTNESS, 1 }
 };
 
+static const __DRI2flushExtension dri2FlushExtension = {
+    .base = { __DRI2_FLUSH, 4 },
+
+    .flush                = NULL, //dri2_flush_drawable,
+    .invalidate           = NULL, //dri2_invalidate_drawable,
+    .flush_with_flags     = dri_flush,
+};
+
 /*
  * Backend function for init_screen.
  */
@@ -476,6 +484,7 @@ static const __DRIextension *drisw_screen_extensions[] = {
    &dri2NoErrorExtension.base,
    &driSWImageExtension.base,
    &dri2FlushControlExtension.base,
+   &dri2FlushExtension.base,
    NULL
 };
 
@@ -488,6 +497,7 @@ static const __DRIextension *drisw_robust_screen_extensions[] = {
    &dri2Robustness.base,
    &driSWImageExtension.base,
    &dri2FlushControlExtension.base,
+   &dri2FlushExtension.base,
    NULL
 };
 

@@ -681,9 +681,10 @@ driswSwapBuffers(__GLXDRIdrawable * pdraw,
    if (flush) {
       static unsigned int flags = __DRI2_FLUSH_CONTEXT | __DRI2_FLUSH_DRAWABLE;
       if (pdp->config->stereoMode) {
-         //dri_flush(pdp->driDrawable->driContextPriv, pdp->driDrawable, flags, __DRI2_THROTTLE_SWAPBUFFER);
+         (*psc->flush->flush_with_flags)(pdp->driDrawable->driContextPriv, pdp->driDrawable, flags, __DRI2_THROTTLE_SWAPBUFFER);
          flags ^= __DRI2_FLUSH_STEREO;
       }
+      else
       glFlush();
    }
 
@@ -774,6 +775,11 @@ driswBindExtensions(struct drisw_screen *psc, const __DRIextension **extensions)
           && strcmp(extensions[i]->name, __DRI2_RENDERER_QUERY) == 0) {
          psc->rendererQuery = (__DRI2rendererQueryExtension *) extensions[i];
          __glXEnableDirectExtension(&psc->base, "GLX_MESA_query_renderer");
+      }
+
+      if ((strcmp(extensions[i]->name, __DRI2_FLUSH) == 0)) {
+         psc->flush = (__DRI2flushExtension *) extensions[i];
+         /* internal driver extension, no GL extension exposed */
       }
 
       if (strcmp(extensions[i]->name, __DRI2_ROBUSTNESS) == 0)
