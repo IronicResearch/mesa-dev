@@ -272,7 +272,7 @@ dri_fill_in_modes(struct dri_screen *screen)
          new_configs = driCreateConfigs(mesa_formats[format],
                                         depth_bits_array, stencil_bits_array,
                                         depth_buffer_factor, back_buffer_modes,
-                                        ARRAY_SIZE(back_buffer_modes),
+                                        num_bufmodes,
                                         msaa_modes, 1,
                                         GL_TRUE, !mixed_color_depth);
          configs = driConcatConfigs(configs, new_configs);

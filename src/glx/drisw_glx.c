@@ -31,6 +31,7 @@
 #include <dlfcn.h>
 #include "dri_common.h"
 #include "drisw_priv.h"
+#include "mesa/drivers/dri/common/dri_util.h"
 #include <X11/extensions/shmproto.h>
 #include <assert.h>
 
@@ -678,8 +679,14 @@ driswSwapBuffers(__GLXDRIdrawable * pdraw,
    (void) remainder;
 
    if (flush) {
+      static unsigned int flags = __DRI2_FLUSH_CONTEXT | __DRI2_FLUSH_DRAWABLE;
+      if (pdp->config->stereoMode) {
+         //dri_flush(pdp->driDrawable->driContextPriv, pdp->driDrawable, flags, __DRI2_THROTTLE_SWAPBUFFER);
+         flags ^= __DRI2_FLUSH_STEREO;
+      }
       glFlush();
    }
+
 
    (*psc->core->swapBuffers) (pdp->driDrawable);
 

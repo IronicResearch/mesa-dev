@@ -240,11 +240,19 @@ drisw_swap_buffers(__DRIdrawable *dPriv)
    struct dri_context *ctx = dri_get_current(dPriv->driScreenPriv);
    struct dri_drawable *drawable = dri_drawable(dPriv);
    struct pipe_resource *ptex;
+   enum st_attachment_type statt = ST_ATTACHMENT_BACK_LEFT;
+   static bool stereo_swap = false;
 
    if (!ctx)
       return;
 
-   ptex = drawable->textures[ST_ATTACHMENT_BACK_LEFT];
+   if (ctx->sPriv->stereo_mode) {
+      if (stereo_swap)
+         statt = ST_ATTACHMENT_BACK_RIGHT;
+      stereo_swap = !stereo_swap;
+   }
+
+   ptex = drawable->textures[statt];
 
    if (ptex) {
       if (ctx->pp)
@@ -258,8 +266,8 @@ drisw_swap_buffers(__DRIdrawable *dPriv)
       if (drawable->stvis.samples > 1) {
          /* Resolve the back buffer. */
          dri_pipe_blit(ctx->st->pipe,
-                       drawable->textures[ST_ATTACHMENT_BACK_LEFT],
-                       drawable->msaa_textures[ST_ATTACHMENT_BACK_LEFT]);
+                       drawable->textures[statt],
+                       drawable->msaa_textures[statt]);
       }
 
       drisw_copy_to_front(ctx->st->pipe, dPriv, ptex);
