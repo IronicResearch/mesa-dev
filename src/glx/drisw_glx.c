@@ -680,7 +680,7 @@ driswSwapBuffers(__GLXDRIdrawable * pdraw,
 
    if (flush) {
       static unsigned int flags = __DRI2_FLUSH_CONTEXT | __DRI2_FLUSH_DRAWABLE;
-      if (pdp->config->stereoMode) {
+      if (pdp->config->stereoMode && psc->flush && psc->flush->flush_with_flags) {
          (*psc->flush->flush_with_flags)(pdp->driDrawable->driContextPriv, pdp->driDrawable, flags, __DRI2_THROTTLE_SWAPBUFFER);
          flags ^= __DRI2_FLUSH_STEREO;
       }

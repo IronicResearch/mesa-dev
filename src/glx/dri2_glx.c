@@ -91,6 +91,8 @@ struct dri2_drawable
 
    uint64_t previous_time;
    unsigned frames;
+
+   struct glx_config *config;
 };
 
 static const struct glx_context_vtable dri2_context_vtable;
@@ -334,6 +336,7 @@ dri2CreateDrawable(struct glx_screen *base, XID xDrawable,
    pdraw->bufferCount = 0;
    pdraw->swap_interval = 1; /* default may be overridden below */
    pdraw->have_back = 0;
+   pdraw->config = config_base;
 
    if (psc->config)
       psc->config->configQueryi(psc->driScreen,
@@ -544,11 +547,6 @@ __dri2CopySubBuffer(__GLXDRIdrawable *pdraw, int x, int y,
    region = XFixesCreateRegion(psc->base.dpy, &xrect, 1);
    DRI2CopyRegion(psc->base.dpy, pdraw->xDrawable, region,
                   DRI2BufferFrontLeft, DRI2BufferBackLeft);
-
-#if 0  // FIXME: params not supported by X server
-   DRI2CopyRegion(psc->base.dpy, pdraw->xDrawable, region,
-                  DRI2BufferFrontRight, DRI2BufferBackRight);
-#endif
 
    /* Refresh the fake front (if present) after we just damaged the real
     * front.
@@ -784,8 +782,7 @@ dri2SwapBuffers(__GLXDRIdrawable *pdraw, int64_t target_msc, int64_t divisor,
     struct dri2_drawable *priv = (struct dri2_drawable *) pdraw;
     struct glx_display *dpyPriv = __glXInitialize(priv->base.psc->dpy);
     struct dri2_screen *psc = (struct dri2_screen *) priv->base.psc;
-    struct dri2_display *pdp =
-	(struct dri2_display *)dpyPriv->dri2Display;
+    struct dri2_display *pdp = (struct dri2_display *)dpyPriv->dri2Display;
     int64_t ret = 0;
     static unsigned int swap_flags = 0;
 
@@ -802,7 +799,7 @@ dri2SwapBuffers(__GLXDRIdrawable *pdraw, int64_t target_msc, int64_t divisor,
        unsigned flags = __DRI2_FLUSH_DRAWABLE;
        if (flush)
           flags |= __DRI2_FLUSH_CONTEXT;
-       if (psc->driScreen->stereo_mode) {
+       if (priv->config->stereoMode) {
           flags |= swap_flags;
           swap_flags ^= __DRI2_FLUSH_STEREO;
        }

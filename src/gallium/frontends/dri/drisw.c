@@ -246,7 +246,7 @@ drisw_swap_buffers(__DRIdrawable *dPriv)
    if (!ctx)
       return;
 
-   if (ctx->sPriv->stereo_mode) {
+   if (ctx->sPriv->stereo_mode && (drawable->stvis.buffer_mask & ST_ATTACHMENT_BACK_RIGHT_MASK)) {
       if (stereo_swap)
          statt = ST_ATTACHMENT_BACK_RIGHT;
       stereo_swap = !stereo_swap;
