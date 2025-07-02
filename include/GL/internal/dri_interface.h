@@ -792,6 +792,7 @@ struct __DRIuseInvalidateExtensionRec {
 #define __DRI_ATTRIB_SWAP_EXCHANGE              0x8061
 #define __DRI_ATTRIB_SWAP_COPY                  0x8062
 #define __DRI_ATTRIB_SWAP_UNDEFINED             0x8063
+#define __DRI_ATTRIB_SWAP_STEREO                0x8064
 
 /**
  * This extension defines the core DRI functionality.

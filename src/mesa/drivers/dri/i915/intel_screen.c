@@ -1060,7 +1060,7 @@ intel_screen_make_configs(__DRIscreen *dri_screen)
 
    /* __DRI_ATTRIB_SWAP_COPY is not supported due to page flipping. */
    static const GLenum back_buffer_modes[] = {
-      __DRI_ATTRIB_SWAP_UNDEFINED, __DRI_ATTRIB_SWAP_NONE, __DRI_ATTRIB_STEREO
+      __DRI_ATTRIB_SWAP_UNDEFINED, __DRI_ATTRIB_SWAP_NONE, __DRI_ATTRIB_SWAP_STEREO
    };
 
    static const uint8_t singlesample_samples[1] = {0};

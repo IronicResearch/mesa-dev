@@ -161,7 +161,7 @@ dri_fill_in_modes(struct dri_screen *screen)
 
    static const GLenum back_buffer_modes[] = {
       __DRI_ATTRIB_SWAP_NONE, __DRI_ATTRIB_SWAP_UNDEFINED,
-      __DRI_ATTRIB_SWAP_COPY, __DRI_ATTRIB_STEREO
+      __DRI_ATTRIB_SWAP_COPY, __DRI_ATTRIB_SWAP_STEREO
    };
    unsigned int num_bufmodes = (screen->sPriv->stereo_mode) ? 4 : 3;
 
