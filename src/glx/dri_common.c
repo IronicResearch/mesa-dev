@@ -250,7 +250,7 @@ driConfigEqual(const __DRIcoreExtension *core,
          int r = scalarEqual(config, attrib, value);
          if (r == 0)
             return GL_FALSE;
-         if (driConfig->modes.stereoMode || env_var_as_unsigned("MESA_GLX_FORCE_STEREO", 0) > 1)
+         if (driConfig->modes.stereoMode || get_stereo_mode_option() > 1)
             config->stereoMode = config->doubleBufferMode;
          break;
       }

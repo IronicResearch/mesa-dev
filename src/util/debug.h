@@ -46,6 +46,8 @@ env_var_as_boolean(const char *var_name, bool default_value);
 unsigned
 env_var_as_unsigned(const char *var_name, unsigned default_value);
 
+int get_stereo_mode_option(void);
+
 #ifdef __cplusplus
 } /* extern C */
 #endif

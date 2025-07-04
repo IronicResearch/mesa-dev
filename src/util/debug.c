@@ -112,3 +112,15 @@ env_var_as_unsigned(const char *var_name, unsigned default_value)
    }
    return default_value;
 }
+
+int
+get_stereo_mode_option(void)
+{
+   static int stereo_mode = -1;
+
+   if (stereo_mode < 0) {
+      char* env = getenv("MESA_GLX_FORCE_STEREO");
+      stereo_mode = (env) ? atoi(env) : 0;
+   }
+   return stereo_mode;
+}

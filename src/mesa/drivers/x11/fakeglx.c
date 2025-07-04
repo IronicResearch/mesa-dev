@@ -278,12 +278,6 @@ save_glx_visual( Display *dpy, XVisualInfo *vinfo,
       stereoFlag = GL_TRUE;
       _mesa_warning(NULL, "Mesa: Force GLX_STEREO visual.");
    }
-   else
-   if (stereoFlag) {
-      /* stereo not supported */
-      return NULL;
-   }
-
 
    /* Force the visual to have an alpha channel */
    if (getenv("MESA_GLX_FORCE_ALPHA"))

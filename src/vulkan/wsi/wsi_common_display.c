@@ -39,6 +39,7 @@
 #endif
 #include "util/hash_table.h"
 #include "util/list.h"
+#include "util/debug.h"
 
 #include "vk_device.h"
 #include "vk_instance.h"
@@ -1510,8 +1511,7 @@ wsi_display_setup_connector(wsi_display_connector *connector,
    }
 
    /* detect stereo display mode placeholder */
-   char* env = getenv("MESA_GLX_FORCE_STEREO");
-   connector->stereo = (env) ? atoi(env) == 2 : false;
+   connector->stereo = get_stereo_mode_option() == 2;
 
 bail_connector:
    drmModeFreeConnector(drm_connector);

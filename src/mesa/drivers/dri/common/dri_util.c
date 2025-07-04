@@ -44,6 +44,7 @@
 #include "utils.h"
 #include "util/u_endian.h"
 #include "util/driconf.h"
+#include "util/debug.h"
 #include "main/mtypes.h"
 #include "main/framebuffer.h"
 #include "main/version.h"
@@ -158,8 +159,7 @@ driCreateNewScreen2(int scrn, int fd,
                         "dri2", NULL, NULL, NULL, 0, NULL, 0);
 
     /* detect stereo display mode option */
-    char* env = getenv("MESA_GLX_FORCE_STEREO");
-    psp->stereo_mode = (env) ? atoi(env) : 0;
+    psp->stereo_mode = get_stereo_mode_option();
 
     *driver_configs = psp->driver->InitScreen(psp);
     if (*driver_configs == NULL) {

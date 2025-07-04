@@ -215,11 +215,6 @@ save_glx_visual( Display *dpy, XVisualInfo *vinfo,
       stereoFlag = GL_TRUE;
       _mesa_warning(NULL, "Mesa: Force GLX_STEREO visual.");
    }
-   else
-   if (stereoFlag) {
-      /* stereo not supported */
-      return NULL;
-   }
 
    if (stencil_size > 0 && depth_size > 0)
       depth_size = 24;
