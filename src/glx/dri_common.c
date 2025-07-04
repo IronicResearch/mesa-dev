@@ -44,6 +44,7 @@
 #include <X11/Xlib-xcb.h>
 #include <xcb/xproto.h>
 #include "mesa/drivers/dri/common/utils.h"
+#include "util/debug.h"
 
 #ifndef RTLD_NOW
 #define RTLD_NOW 0
@@ -249,7 +250,7 @@ driConfigEqual(const __DRIcoreExtension *core,
          int r = scalarEqual(config, attrib, value);
          if (r == 0)
             return GL_FALSE;
-         if (driConfig->modes.stereoMode)
+         if (driConfig->modes.stereoMode || env_var_as_unsigned("MESA_GLX_FORCE_STEREO", 0) > 1)
             config->stereoMode = config->doubleBufferMode;
          break;
       }

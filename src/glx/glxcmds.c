@@ -55,6 +55,7 @@
 #include <xcb/xcb.h>
 #include <xcb/glx.h>
 #include "GL/mesa_glinterop.h"
+#include "util/debug.h"
 
 static const char __glXGLXClientVendorName[] = "Mesa Project and SGI";
 static const char __glXGLXClientVersion[] = "1.4";
@@ -938,6 +939,9 @@ init_fbconfig_for_chooser(struct glx_config * config,
       config->stereoMode = GLX_DONT_CARE;
       config->renderType = GLX_RGBA_BIT;
    }
+
+   if (env_var_as_unsigned("MESA_GLX_FORCE_STEREO", 0) > 1)
+      config->stereoMode = GLX_DONT_CARE;
 
    config->drawableType = GLX_WINDOW_BIT;
    config->visualRating = GLX_DONT_CARE;
