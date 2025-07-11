@@ -431,10 +431,16 @@ dri3_page_flip_enable(struct loader_dri3_drawable *draw, int fd, bool enable)
    uint32_t offset = (enable) ? buf->size : 0;
    uint32_t userdata = 0xdeadbeef;
 
+   if (enable)
+      drmSetMaster(fd);
+
    r = drmModePageFlipTarget(fd, draw->crtc->crtc_id, draw->crtc->buffer_id,
       DRM_MODE_PAGE_FLIP_EVENT | DRM_MODE_PAGE_FLIP_TARGET_STEREO,
       &userdata, offset);
    LOGD("%s: DRM PageFlipTarget returned = %d for fd = %d\n", __func__, r, fd);
+
+   if (!enable)
+      drmDropMaster(fd);
 #endif
    return r;
 }
