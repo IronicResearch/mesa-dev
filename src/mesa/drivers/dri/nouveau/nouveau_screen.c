@@ -66,7 +66,7 @@ nouveau_get_configs(uint32_t chipset)
 	};
 
 	const GLenum back_buffer_modes[] = {
-		__DRI_ATTRIB_SWAP_NONE, __DRI_ATTRIB_SWAP_UNDEFINED
+		__DRI_ATTRIB_SWAP_NONE, __DRI_ATTRIB_SWAP_UNDEFINED, __DRI_ATTRIB_SWAP_STEREO
 	};
 
 	for (i = 0; i < ARRAY_SIZE(formats); i++) {
@@ -266,6 +266,14 @@ nouveau_create_buffer(__DRIscreen *dri_screen,
 	if (visual->doubleBufferMode) {
 		rb = nouveau_renderbuffer_dri_new(color_format, drawable);
 		_mesa_attach_and_own_rb(fb, BUFFER_BACK_LEFT, rb);
+	}
+
+	/* Stereo front/back buffers */
+	if (visual->stereoMode) {
+		rb = nouveau_renderbuffer_dri_new(color_format, drawable);
+		_mesa_attach_and_own_rb(fb, BUFFER_FRONT_RIGHT, rb);
+		rb = nouveau_renderbuffer_dri_new(color_format, drawable);
+		_mesa_attach_and_own_rb(fb, BUFFER_BACK_RIGHT, rb);
 	}
 
 	/* Depth/stencil buffer. */

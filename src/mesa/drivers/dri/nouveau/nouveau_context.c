@@ -250,6 +250,10 @@ nouveau_update_renderbuffers(__DRIcontext *dri_ctx, __DRIdrawable *draw)
 		attachments[i++] = __DRI_BUFFER_FRONT_LEFT;
 	if (fb->Visual.doubleBufferMode)
 		attachments[i++] = __DRI_BUFFER_BACK_LEFT;
+	if (fb->Visual.stereoMode) {
+		attachments[i++] = __DRI_BUFFER_FRONT_RIGHT;
+		attachments[i++] = __DRI_BUFFER_BACK_RIGHT;
+	}
 	if (fb->Visual.depthBits > 0 && fb->Visual.stencilBits > 0)
 		attachments[i++] = __DRI_BUFFER_DEPTH_STENCIL;
 	else if (fb->Visual.depthBits > 0)
@@ -274,8 +278,14 @@ nouveau_update_renderbuffers(__DRIcontext *dri_ctx, __DRIdrawable *draw)
 		case __DRI_BUFFER_FAKE_FRONT_LEFT:
 			index = BUFFER_FRONT_LEFT;
 			break;
+		case __DRI_BUFFER_FRONT_RIGHT:
+			index = BUFFER_FRONT_RIGHT;
+			break;
 		case __DRI_BUFFER_BACK_LEFT:
 			index = BUFFER_BACK_LEFT;
+			break;
+		case __DRI_BUFFER_BACK_RIGHT:
+			index = BUFFER_BACK_RIGHT;
 			break;
 		case __DRI_BUFFER_DEPTH:
 		case __DRI_BUFFER_DEPTH_STENCIL:
