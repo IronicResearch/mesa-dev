@@ -286,6 +286,11 @@ nouveau_update_renderbuffers(__DRIcontext *dri_ctx, __DRIdrawable *draw)
 			break;
 		case __DRI_BUFFER_BACK_RIGHT:
 			index = BUFFER_BACK_RIGHT;
+			if (nouveau_get_stereo_swap()) {
+				rb = fb->Attachment[index].Renderbuffer;
+				fb->Attachment[index].Renderbuffer = fb->Attachment[BUFFER_BACK_LEFT].Renderbuffer;
+				fb->Attachment[BUFFER_BACK_LEFT].Renderbuffer = rb;
+			}
 			break;
 		case __DRI_BUFFER_DEPTH:
 		case __DRI_BUFFER_DEPTH_STENCIL:

@@ -49,6 +49,12 @@ static const __DRIextension *nouveau_screen_extensions[];
 static void
 nouveau_destroy_screen(__DRIscreen *dri_screen);
 
+static bool stereo_swap = false;
+bool nouveau_get_stereo_swap(void)
+{
+    return stereo_swap;
+}
+
 static const __DRIconfig **
 nouveau_get_configs(uint32_t chipset)
 {
@@ -316,8 +322,6 @@ nouveau_drawable_flush(__DRIdrawable *draw)
 
     nouveau_flush(ctx, 0);
 }
-
-static bool stereo_swap = false;
 
 static void
 nouveau_flush_with_flags(__DRIcontext *dri_ctx,

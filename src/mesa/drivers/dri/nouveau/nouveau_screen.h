@@ -38,4 +38,6 @@ struct nouveau_screen {
 	const struct nouveau_driver *driver;
 };
 
+bool nouveau_get_stereo_swap(void);
+
 #endif
