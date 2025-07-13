@@ -75,6 +75,9 @@ const char *
 nouveau_get_renderer_string(unsigned chipset);
 
 void
+nouveau_flush(struct gl_context *ctx, unsigned gallium_flush_flags);
+
+void
 nouveau_clear(struct gl_context *ctx, GLbitfield buffers);
 
 void

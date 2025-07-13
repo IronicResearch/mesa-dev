@@ -63,7 +63,7 @@ nouveau_get_string(struct gl_context *ctx, GLenum name)
 	}
 }
 
-static void
+void
 nouveau_flush(struct gl_context *ctx, unsigned gallium_flush_flags)
 {
 	struct nouveau_context *nctx = to_nouveau_context(ctx);

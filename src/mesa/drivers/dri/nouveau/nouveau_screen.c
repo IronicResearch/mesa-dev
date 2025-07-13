@@ -311,13 +311,33 @@ nouveau_destroy_buffer(__DRIdrawable *drawable)
 static void
 nouveau_drawable_flush(__DRIdrawable *draw)
 {
+    __DRIcontext *dri_ctx = (__DRIcontext*)draw->driContextPriv;
+    struct gl_context *ctx = dri_ctx->driverPrivate;
+
+    nouveau_flush(ctx, 0);
+}
+
+static bool stereo_swap = false;
+
+static void
+nouveau_flush_with_flags(__DRIcontext *dri_ctx,
+                         __DRIdrawable *drawable,
+                         unsigned flags,
+                         enum __DRI2throttleReason throttle_reason)
+{
+    struct gl_context *ctx = dri_ctx->driverPrivate;
+
+    if (flags & __DRI2_FLUSH_STEREO)
+        stereo_swap = true;
+    nouveau_flush(ctx, flags);
 }
 
 static const struct __DRI2flushExtensionRec nouveau_flush_extension = {
-   .base = { __DRI2_FLUSH, 3 },
+   .base = { __DRI2_FLUSH, 4 },
 
    .flush               = nouveau_drawable_flush,
    .invalidate          = dri2InvalidateDrawable,
+   .flush_with_flags    = nouveau_flush_with_flags,
 };
 
 static const struct __DRItexBufferExtensionRec nouveau_texbuffer_extension = {
