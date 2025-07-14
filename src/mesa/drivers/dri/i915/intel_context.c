@@ -192,12 +192,12 @@ intel_update_dri2_buffers(struct intel_context *intel, __DRIdrawable *drawable)
          break;
 
       case __DRI_BUFFER_BACK_LEFT:
-         rb = intel_get_renderbuffer(fb, BUFFER_BACK_LEFT);
+         rb = intel_get_renderbuffer(fb, intel_get_stereo_swap() ? BUFFER_BACK_RIGHT : BUFFER_BACK_LEFT);
          region_name = "dri2 back buffer";
          break;
 
       case __DRI_BUFFER_BACK_RIGHT:
-         rb = intel_get_renderbuffer(fb, BUFFER_BACK_RIGHT);
+         rb = intel_get_renderbuffer(fb, intel_get_stereo_swap() ? BUFFER_BACK_LEFT : BUFFER_BACK_RIGHT);
          region_name = "dri2 back right buffer";
          break;
 
