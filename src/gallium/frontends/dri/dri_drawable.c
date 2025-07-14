@@ -415,8 +415,8 @@ notify_before_flush_cb(void* _args)
    struct st_context_iface *st = args->ctx->st;
    struct pipe_context *pipe = st->pipe;
    enum st_attachment_type statt = (args->flags & __DRI2_FLUSH_STEREO)
-      ? ST_ATTACHMENT_BACK_RIGHT
-      : ST_ATTACHMENT_BACK_LEFT;
+                                    ? ST_ATTACHMENT_BACK_RIGHT
+                                    : ST_ATTACHMENT_BACK_LEFT;
 
    if (args->drawable->stvis.samples > 1 &&
        (args->reason == __DRI2_THROTTLE_SWAPBUFFER ||
@@ -451,6 +451,14 @@ notify_before_flush_cb(void* _args)
    }
 
    pipe->flush_resource(pipe, args->drawable->textures[statt]);
+}
+
+static bool dri_stereo_swap = false;
+
+bool
+dri_get_stereo_swap(void)
+{
+   return dri_stereo_swap;
 }
 
 /**
@@ -492,6 +500,9 @@ dri_flush(__DRIcontext *cPriv,
    else {
       flags &= ~__DRI2_FLUSH_DRAWABLE;
    }
+
+   if (reason == __DRI2_THROTTLE_SWAPBUFFER)
+      dri_stereo_swap = (flags & __DRI2_FLUSH_STEREO);
 
    if ((flags & __DRI2_FLUSH_DRAWABLE) &&
        (drawable->textures[ST_ATTACHMENT_BACK_LEFT]

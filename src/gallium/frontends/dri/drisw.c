@@ -241,15 +241,13 @@ drisw_swap_buffers(__DRIdrawable *dPriv)
    struct dri_drawable *drawable = dri_drawable(dPriv);
    struct pipe_resource *ptex;
    enum st_attachment_type statt = ST_ATTACHMENT_BACK_LEFT;
-   static bool stereo_swap = false;
 
    if (!ctx)
       return;
 
    if (ctx->sPriv->stereo_mode && (drawable->stvis.buffer_mask & ST_ATTACHMENT_BACK_RIGHT_MASK)) {
-      if (stereo_swap)
+      if (dri_get_stereo_swap())
          statt = ST_ATTACHMENT_BACK_RIGHT;
-      stereo_swap = !stereo_swap;
    }
 
    ptex = drawable->textures[statt];

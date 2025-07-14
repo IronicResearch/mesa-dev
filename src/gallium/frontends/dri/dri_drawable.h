@@ -109,6 +109,9 @@ dri_pipe_blit(struct pipe_context *pipe,
               struct pipe_resource *dst,
               struct pipe_resource *src);
 
+bool
+dri_get_stereo_swap(void);
+
 void
 dri_flush(__DRIcontext *cPriv,
           __DRIdrawable *dPriv,
