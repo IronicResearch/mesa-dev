@@ -476,11 +476,11 @@ radeon_update_renderbuffers(__DRIcontext *context, __DRIdrawable *drawable,
 			regname = "dri2 front right buffer";
 			break;
 		case __DRI_BUFFER_BACK_LEFT:
-			rb = draw->color_rb[1];
+			rb = radeon_get_stereo_swap() ? draw->color_rb[3] : draw->color_rb[1];
 			regname = "dri2 back buffer";
 			break;
 		case __DRI_BUFFER_BACK_RIGHT:
-			rb = draw->color_rb[3];
+			rb = radeon_get_stereo_swap() ? draw->color_rb[1] : draw->color_rb[3];
 			regname = "dri2 back right buffer";
 			break;
 		case __DRI_BUFFER_DEPTH:

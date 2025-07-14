@@ -260,8 +260,10 @@ struct __DRIimageRec {
 #define radeonDestroyBuffer                 r200_radeonDestroyBuffer
 #define radeonVendorString                  r200_radeonVendorString
 #define radeonGetRendererString             r200_radeonGetRendererString
+#define radeon_get_stereo_swap              r200_radeon_get_stereo_swap
 #endif
 
+extern bool radeon_get_stereo_swap(void);
 extern void radeonDestroyBuffer(__DRIdrawable *driDrawPriv);
 const __DRIextension **__driDriverGetExtensions_radeon(void);
 const __DRIextension **__driDriverGetExtensions_r200(void);

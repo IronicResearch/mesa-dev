@@ -331,8 +331,8 @@ nouveau_flush_with_flags(__DRIcontext *dri_ctx,
 {
     struct gl_context *ctx = dri_ctx->driverPrivate;
 
-    if (flags & __DRI2_FLUSH_STEREO)
-        stereo_swap = true;
+    if (throttle_reason == __DRI2_THROTTLE_SWAPBUFFER)
+        stereo_swap = (flags & __DRI2_FLUSH_STEREO);
     nouveau_flush(ctx, flags);
 }
 

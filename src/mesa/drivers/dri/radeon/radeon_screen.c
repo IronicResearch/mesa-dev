@@ -187,7 +187,7 @@ static const __DRItexBufferExtension r200TexBufferExtension = {
 #endif
 
 static bool stereo_swap = false;
-static bool radeon_get_stereo_swap(void)
+bool radeon_get_stereo_swap(void)
 {
     return stereo_swap;
 }
@@ -210,8 +210,8 @@ radeonDRI2FlushWithFlags(__DRIcontext *ctx,
     radeonContextPtr rmesa;
 
     rmesa = (radeonContextPtr) drawable->driContextPriv->driverPrivate;
-    if (flags & __DRI2_FLUSH_STEREO)
-        stereo_swap = true;
+    if (throttle_reason == __DRI2_THROTTLE_SWAPBUFFER)
+        stereo_swap = (flags & __DRI2_FLUSH_STEREO);
     radeonFlush(&rmesa->glCtx, flags);
 }
 
