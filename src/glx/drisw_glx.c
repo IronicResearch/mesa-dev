@@ -36,6 +36,7 @@
 #include "util/u_debug.h"
 #include "kopper_interface.h"
 #include "loader_dri_helper.h"
+#include "gallium/frontends/dri/dri_util.h"
 
 static int xshm_error = 0;
 static int xshm_opcode = -1;
@@ -748,6 +749,12 @@ driswSwapBuffers(__GLXDRIdrawable * pdraw,
    (void) remainder;
 
    if (flush) {
+      static unsigned int flags = __DRI2_FLUSH_CONTEXT | __DRI2_FLUSH_DRAWABLE;
+      if (pdp->config->stereoMode && psc->flush && psc->flush->flush_with_flags) {
+         (*psc->flush->flush_with_flags)(pdp->driDrawable->driContextPriv, pdp->driDrawable, flags, __DRI2_THROTTLE_SWAPBUFFER);
+         flags ^= __DRI2_FLUSH_STEREO;
+      }
+      else
       glFlush();
    }
 
@@ -844,6 +851,11 @@ driswBindExtensions(struct drisw_screen *psc, const __DRIextension **extensions)
                                               &no_error) == 0 && no_error)
              __glXEnableDirectExtension(&psc->base,
                                         "GLX_ARB_create_context_no_error");
+      }
+
+      if ((strcmp(extensions[i]->name, __DRI2_FLUSH) == 0)) {
+         psc->flush = (__DRI2flushExtension *) extensions[i];
+         /* internal driver extension, no GL extension exposed */
       }
 
       if (strcmp(extensions[i]->name, __DRI2_ROBUSTNESS) == 0)

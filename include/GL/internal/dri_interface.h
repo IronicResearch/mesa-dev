@@ -226,6 +226,7 @@ struct __DRItexBufferExtensionRec {
 #define __DRI2_FLUSH_DRAWABLE (1 << 0) /* the drawable should be flushed. */
 #define __DRI2_FLUSH_CONTEXT  (1 << 1) /* glFlush should be called */
 #define __DRI2_FLUSH_INVALIDATE_ANCILLARY (1 << 2)
+#define __DRI2_FLUSH_STEREO   (1 << 3)
 
 enum __DRI2throttleReason {
    __DRI2_THROTTLE_SWAPBUFFER,
@@ -763,6 +764,7 @@ struct __DRIuseInvalidateExtensionRec {
 #define __DRI_ATTRIB_SWAP_EXCHANGE              0x8061
 #define __DRI_ATTRIB_SWAP_COPY                  0x8062
 #define __DRI_ATTRIB_SWAP_UNDEFINED             0x8063
+#define __DRI_ATTRIB_SWAP_STEREO                0x8064
 
 /**
  * This extension defines the core DRI functionality.

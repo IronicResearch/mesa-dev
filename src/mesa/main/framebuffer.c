@@ -127,6 +127,13 @@ _mesa_initialize_window_framebuffer(struct gl_framebuffer *fb,
       fb->_ColorDrawBufferIndexes[0] = BUFFER_BACK_LEFT;
       fb->ColorReadBuffer = GL_BACK;
       fb->_ColorReadBufferIndex = BUFFER_BACK_LEFT;
+      if (visual->stereoMode) {
+         fb->_NumColorDrawBuffers = 2;
+         fb->ColorDrawBuffer[0] = GL_BACK_LEFT;
+         fb->_ColorDrawBufferIndexes[0] = BUFFER_BACK_LEFT;
+         fb->ColorDrawBuffer[1] = GL_BACK_RIGHT;
+         fb->_ColorDrawBufferIndexes[1] = BUFFER_BACK_RIGHT;
+      }
    }
    else {
       fb->_NumColorDrawBuffers = 1;

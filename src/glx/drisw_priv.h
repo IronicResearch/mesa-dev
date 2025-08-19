@@ -49,6 +49,7 @@ struct drisw_screen
    const __DRItexBufferExtension *texBuffer;
    const __DRIcopySubBufferExtension *copySubBuffer;
    const __DRI2rendererQueryExtension *rendererQuery;
+   const __DRI2flushExtension* flush;
 
    const __DRIconfig **driver_configs;
 

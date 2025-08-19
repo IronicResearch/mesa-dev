@@ -545,3 +545,15 @@ debug_funclog_enter_exit(const char* f, UNUSED const int line,
    debug_printf("%s\n", f);
 }
 #endif
+
+int
+get_stereo_mode_option(void)
+{
+   static int stereo_mode = -1;
+
+   if (stereo_mode < 0) {
+      char* env = getenv("MESA_GLX_FORCE_STEREO");
+      stereo_mode = (env) ? atoi(env) : 0;
+   }
+   return stereo_mode;
+}

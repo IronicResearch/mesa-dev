@@ -55,6 +55,7 @@
 #include <xcb/xcb.h>
 #include <xcb/glx.h>
 #include "GL/mesa_glinterop.h"
+#include "util/u_debug.h"
 
 static const char __glXGLXClientVendorName[] = "Mesa Project and SGI";
 static const char __glXGLXClientVersion[] = "1.4";
@@ -941,6 +942,9 @@ init_fbconfig_for_chooser(struct glx_config * config,
       config->renderType = GLX_RGBA_BIT;
    }
 
+   if (get_stereo_mode_option() > 1)
+      config->stereoMode = GLX_DONT_CARE;
+
    config->drawableType = GLX_WINDOW_BIT;
    config->visualRating = GLX_DONT_CARE;
    config->transparentPixel = GLX_NONE;
@@ -1024,7 +1028,7 @@ fbconfigs_compatible(const struct glx_config * const a,
    MATCH_MINIMUM(maxPbufferPixels);
    MATCH_MINIMUM(samples);
 
-   MATCH_DONT_CARE(stereoMode);
+   MATCH_DONT_CARE(stereoMode); //
    MATCH_EXACT(level);
 
    MATCH_MASK(drawableType);
@@ -1141,6 +1145,12 @@ fbconfig_compare(struct glx_config **a, struct glx_config **b)
    PREFER_LARGER_OR_ZERO(alphaBits);
 
    PREFER_SMALLER(rgbBits);
+
+   if (((*a)->stereoMode != (*b)->stereoMode)) {
+      /* Prefer single-buffer.
+       */
+      return (!(*a)->stereoMode) ? -1 : 1;
+   }
 
    if (((*a)->doubleBufferMode != (*b)->doubleBufferMode)) {
       /* Prefer single-buffer.

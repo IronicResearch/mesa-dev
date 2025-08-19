@@ -76,6 +76,8 @@ struct dri2_drawable
 
    uint64_t previous_time;
    unsigned frames;
+
+   struct glx_config *config;
 };
 
 static const struct glx_context_vtable dri2_context_vtable;
@@ -308,6 +310,7 @@ dri2CreateDrawable(struct glx_screen *base, XID xDrawable,
    pdraw->bufferCount = 0;
    pdraw->swap_interval = dri_get_initial_swap_interval(psc->driScreen, psc->config);
    pdraw->have_back = 0;
+   pdraw->config = config_base;
 
    DRI2CreateDrawable(psc->base.dpy, xDrawable);
    pdp = (struct dri2_display *)dpyPriv->dri2Display;
@@ -730,6 +733,7 @@ dri2SwapBuffers(__GLXDRIdrawable *pdraw, int64_t target_msc, int64_t divisor,
     struct dri2_drawable *priv = (struct dri2_drawable *) pdraw;
     struct dri2_screen *psc = (struct dri2_screen *) priv->base.psc;
     int64_t ret = 0;
+    static unsigned int swap_flags = 0;
 
     /* Check we have the right attachments */
     if (!priv->have_back)
@@ -739,6 +743,10 @@ dri2SwapBuffers(__GLXDRIdrawable *pdraw, int64_t target_msc, int64_t divisor,
     unsigned flags = __DRI2_FLUSH_DRAWABLE;
     if (flush)
        flags |= __DRI2_FLUSH_CONTEXT;
+    if (priv->config->stereoMode) {
+       flags |= swap_flags;
+       swap_flags ^= __DRI2_FLUSH_STEREO;
+    }
     dri2Flush(psc, ctx, priv, flags, __DRI2_THROTTLE_SWAPBUFFER);
 
     ret = dri2XcbSwapBuffers(pdraw->psc->dpy, pdraw,

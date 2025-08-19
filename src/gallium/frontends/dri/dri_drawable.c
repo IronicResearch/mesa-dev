@@ -413,6 +413,9 @@ notify_before_flush_cb(void* _args)
    struct notify_before_flush_cb_args *args = (struct notify_before_flush_cb_args *) _args;
    struct st_context_iface *st = args->ctx->st;
    struct pipe_context *pipe = st->pipe;
+   enum st_attachment_type statt = (args->flags & __DRI2_FLUSH_STEREO)
+                                    ? ST_ATTACHMENT_BACK_RIGHT
+                                    : ST_ATTACHMENT_BACK_LEFT;
 
    /* Wait for glthread to finish because we can't use pipe_context from
     * multiple threads.
@@ -425,8 +428,8 @@ notify_before_flush_cb(void* _args)
         args->reason == __DRI2_THROTTLE_COPYSUBBUFFER)) {
       /* Resolve the MSAA back buffer. */
       dri_pipe_blit(st->pipe,
-                    args->drawable->textures[ST_ATTACHMENT_BACK_LEFT],
-                    args->drawable->msaa_textures[ST_ATTACHMENT_BACK_LEFT]);
+                    args->drawable->textures[statt],
+                    args->drawable->msaa_textures[statt]);
 
       if (args->reason == __DRI2_THROTTLE_SWAPBUFFER &&
           args->drawable->msaa_textures[ST_ATTACHMENT_FRONT_LEFT] &&
@@ -437,7 +440,7 @@ notify_before_flush_cb(void* _args)
       /* FRONT_LEFT is resolved in drawable->flush_frontbuffer. */
    }
 
-   dri_postprocessing(args->ctx, args->drawable, ST_ATTACHMENT_BACK_LEFT);
+   dri_postprocessing(args->ctx, args->drawable, statt);
 
    if (pipe->invalidate_resource &&
        (args->flags & __DRI2_FLUSH_INVALIDATE_ANCILLARY)) {
@@ -449,10 +452,18 @@ notify_before_flush_cb(void* _args)
 
    if (args->ctx->hud) {
       hud_run(args->ctx->hud, args->ctx->st->cso_context,
-              args->drawable->textures[ST_ATTACHMENT_BACK_LEFT]);
+              args->drawable->textures[statt]);
    }
 
-   pipe->flush_resource(pipe, args->drawable->textures[ST_ATTACHMENT_BACK_LEFT]);
+   pipe->flush_resource(pipe, args->drawable->textures[statt]);
+}
+
+static bool dri_stereo_swap = false;
+
+bool
+dri_get_stereo_swap(void)
+{
+   return dri_stereo_swap;
 }
 
 /**
@@ -495,8 +506,12 @@ dri_flush(__DRIcontext *cPriv,
       flags &= ~__DRI2_FLUSH_DRAWABLE;
    }
 
+   if (reason == __DRI2_THROTTLE_SWAPBUFFER)
+      dri_stereo_swap = (flags & __DRI2_FLUSH_STEREO);
+
    if ((flags & __DRI2_FLUSH_DRAWABLE) &&
-       drawable->textures[ST_ATTACHMENT_BACK_LEFT]) {
+       (drawable->textures[ST_ATTACHMENT_BACK_LEFT]
+       || drawable->textures[ST_ATTACHMENT_BACK_RIGHT])) {
       /* We can't do operations on the back buffer here, because there
        * may be some pending operations that will get flushed by the
        * call to st->flush (eg: FLUSH_VERTICES).

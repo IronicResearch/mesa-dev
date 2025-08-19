@@ -43,6 +43,8 @@
 #include "loader.h"
 #include <X11/Xlib-xcb.h>
 #include <xcb/xproto.h>
+#include "util/u_debug.h"
+#include "gallium/frontends/dri/dri_util.h"
 
 #ifndef RTLD_NOW
 #define RTLD_NOW 0
@@ -114,7 +116,7 @@ static const struct
       __ATTRIB(__DRI_ATTRIB_SAMPLE_BUFFERS, sampleBuffers),
       __ATTRIB(__DRI_ATTRIB_SAMPLES, samples),
       __ATTRIB(__DRI_ATTRIB_DOUBLE_BUFFER, doubleBufferMode),
-      __ATTRIB(__DRI_ATTRIB_STEREO, stereoMode),
+      __ATTRIB(__DRI_ATTRIB_STEREO, stereoMode),  
       __ATTRIB(__DRI_ATTRIB_AUX_BUFFERS, numAuxBuffers),
       __ATTRIB(__DRI_ATTRIB_SWAP_METHOD, swapMethod),
       __ATTRIB(__DRI_ATTRIB_BIND_TO_TEXTURE_RGB, bindToTextureRgb),
@@ -236,6 +238,22 @@ driConfigEqual(const __DRIcoreExtension *core,
             config->bindToMipmapTexture = 0;
          }
          break;
+
+      case __DRI_ATTRIB_STEREO: {
+         int r = scalarEqual(config, attrib, value);
+         if (r == 0)
+            return GL_FALSE;
+         break;
+      }
+
+      case __DRI_ATTRIB_DOUBLE_BUFFER: {
+         int r = scalarEqual(config, attrib, value);
+         if (r == 0)
+            return GL_FALSE;
+         if (driConfig->modes.stereoMode || get_stereo_mode_option() > 1)
+            config->stereoMode = config->doubleBufferMode;
+         break;
+      }
 
       default:
          if (!scalarEqual(config, attrib, value))

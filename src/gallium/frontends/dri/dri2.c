@@ -235,9 +235,11 @@ dri_image_drawable_get_buffers(struct dri_drawable *drawable,
 
       switch (statts[i]) {
       case ST_ATTACHMENT_FRONT_LEFT:
+      case ST_ATTACHMENT_FRONT_RIGHT:
          buffer_mask |= __DRI_IMAGE_BUFFER_FRONT;
          break;
       case ST_ATTACHMENT_BACK_LEFT:
+      case ST_ATTACHMENT_BACK_RIGHT:
          buffer_mask |= __DRI_IMAGE_BUFFER_BACK;
          break;
       default:
@@ -315,6 +317,7 @@ dri2_allocate_buffer(__DRIscreen *sPriv,
          bind = PIPE_BIND_RENDER_TARGET | PIPE_BIND_SAMPLER_VIEW;
          break;
       case __DRI_BUFFER_BACK_LEFT:
+      case __DRI_BUFFER_BACK_RIGHT:
          bind = PIPE_BIND_RENDER_TARGET | PIPE_BIND_SAMPLER_VIEW;
          break;
       case __DRI_BUFFER_DEPTH:
@@ -595,8 +598,14 @@ dri2_allocate_textures(struct dri_context *ctx,
          case __DRI_BUFFER_FAKE_FRONT_LEFT:
             statt = ST_ATTACHMENT_FRONT_LEFT;
             break;
+         case __DRI_BUFFER_FRONT_RIGHT:
+            statt = ST_ATTACHMENT_FRONT_RIGHT;
+            break;
          case __DRI_BUFFER_BACK_LEFT:
             statt = ST_ATTACHMENT_BACK_LEFT;
+            break;
+         case __DRI_BUFFER_BACK_RIGHT:
+            statt = ST_ATTACHMENT_BACK_RIGHT;
             break;
          default:
             continue; /* invalid attachment */
@@ -756,6 +765,7 @@ dri2_flush_frontbuffer(struct dri_context *ctx,
     * has redirected GL_BACK to the front buffer.
     */
    if (statt != ST_ATTACHMENT_FRONT_LEFT &&
+       (!ctx->sPriv->stereo_mode) &&
        (!ctx->is_shared_buffer_bound || statt != ST_ATTACHMENT_BACK_LEFT))
          return false;
 
@@ -764,6 +774,16 @@ dri2_flush_frontbuffer(struct dri_context *ctx,
     */
    if (ctx->st->thread_finish)
       ctx->st->thread_finish(ctx->st);
+
+   /* swap left/right back buffers on stereo swaps */
+   if (ctx->sPriv->stereo_mode && (drawable->stvis.buffer_mask & ST_ATTACHMENT_BACK_RIGHT_MASK)) {
+      if (statt == ST_ATTACHMENT_BACK_LEFT && dri_get_stereo_swap()) {
+         dri_pipe_blit(ctx->st->pipe, 
+            drawable->textures[ST_ATTACHMENT_BACK_LEFT],
+            drawable->textures[ST_ATTACHMENT_BACK_RIGHT]);
+         statt = ST_ATTACHMENT_BACK_RIGHT;
+      }
+   }
 
    if (drawable->stvis.samples > 1) {
       /* Resolve the buffer used for front rendering. */

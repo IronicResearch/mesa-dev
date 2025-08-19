@@ -54,6 +54,8 @@
 #include <OS.h>
 #endif
 
+int get_stereo_mode_option(void);
+
 #ifdef __cplusplus
 extern "C" {
 #endif

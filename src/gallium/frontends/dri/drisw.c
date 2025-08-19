@@ -241,6 +241,7 @@ drisw_swap_buffers(__DRIdrawable *dPriv)
    struct dri_drawable *drawable = dri_drawable(dPriv);
    struct dri_screen *screen = dri_screen(drawable->sPriv);
    struct pipe_resource *ptex;
+   enum st_attachment_type statt = ST_ATTACHMENT_BACK_LEFT;
 
    if (!ctx)
       return;
@@ -251,7 +252,12 @@ drisw_swap_buffers(__DRIdrawable *dPriv)
    if (ctx->st->thread_finish)
       ctx->st->thread_finish(ctx->st);
 
-   ptex = drawable->textures[ST_ATTACHMENT_BACK_LEFT];
+   if (ctx->sPriv->stereo_mode && (drawable->stvis.buffer_mask & ST_ATTACHMENT_BACK_RIGHT_MASK)) {
+      if (dri_get_stereo_swap())
+         statt = ST_ATTACHMENT_BACK_RIGHT;
+   }
+
+   ptex = drawable->textures[statt];
 
    if (ptex) {
       struct pipe_fence_handle *fence = NULL;
@@ -266,8 +272,8 @@ drisw_swap_buffers(__DRIdrawable *dPriv)
       if (drawable->stvis.samples > 1) {
          /* Resolve the back buffer. */
          dri_pipe_blit(ctx->st->pipe,
-                       drawable->textures[ST_ATTACHMENT_BACK_LEFT],
-                       drawable->msaa_textures[ST_ATTACHMENT_BACK_LEFT]);
+                       drawable->textures[statt],
+                       drawable->msaa_textures[statt]);
       }
 
       screen->base.screen->fence_finish(screen->base.screen, ctx->st->pipe,
@@ -504,6 +510,14 @@ static const __DRIrobustnessExtension dri2Robustness = {
    .base = { __DRI2_ROBUSTNESS, 1 }
 };
 
+static const __DRI2flushExtension dri2FlushExtension = {
+    .base = { __DRI2_FLUSH, 4 },
+
+    .flush                = NULL, //dri2_flush_drawable,
+    .invalidate           = NULL, //dri2_invalidate_drawable,
+    .flush_with_flags     = dri_flush,
+};
+
 /*
  * Backend function for init_screen.
  */
@@ -515,6 +529,7 @@ static const __DRIextension *drisw_screen_extensions[] = {
    &dri2FenceExtension.base,
    &driSWImageExtension.base,
    &dri2FlushControlExtension.base,
+   &dri2FlushExtension.base,
    NULL
 };
 
@@ -526,6 +541,7 @@ static const __DRIextension *drisw_robust_screen_extensions[] = {
    &dri2Robustness.base,
    &driSWImageExtension.base,
    &dri2FlushControlExtension.base,
+   &dri2FlushExtension.base,
    NULL
 };
 

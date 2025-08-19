@@ -2518,7 +2518,6 @@ find_value_indexed(const char *func, GLenum pname, GLuint index, union value *v)
    struct gl_buffer_object *buf;
 
    switch (pname) {
-
    case GL_BLEND:
       if (index >= ctx->Const.MaxDrawBuffers)
          goto invalid_value;

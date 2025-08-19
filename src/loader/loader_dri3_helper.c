@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <pthread.h>
 
 #include <X11/xshmfence.h>
 #include <xcb/xcb.h>
@@ -34,10 +35,20 @@
 
 #include <X11/Xlib-xcb.h>
 
+#ifdef HAVE_LIBDRM
+#include <xf86drm.h>
+#include <xf86drmMode.h>
+#ifndef DRM_MODE_PAGE_FLIP_TARGET_STEREO
+#define DRM_MODE_PAGE_FLIP_TARGET_STEREO  (DRM_MODE_PAGE_FLIP_TARGET_RELATIVE << 1)
+#endif
+#endif
+
+#include "loader.h"
 #include "loader_dri_helper.h"
 #include "loader_dri3_helper.h"
 #include "util/macros.h"
 #include "drm-uapi/drm_fourcc.h"
+#include "gallium/frontends/dri/dri_recs.h"
 
 /**
  * A cached blit context.
@@ -347,10 +358,135 @@ dri3_free_render_buffer(struct loader_dri3_drawable *draw,
    free(buffer);
 }
 
+static int
+dri3_wait_for_vblank(int fd)
+{
+#ifdef HAVE_LIBDRM
+   static bool loaded = false;
+
+   drmVBlank vb = { .request = { DRM_VBLANK_RELATIVE, 1, 0} };
+   int r = drmWaitVBlank(fd, &vb);
+
+   if (!loaded) {
+      LOGD("%s: vblank returned = %d for fd = %d\n", __func__, r, fd);
+      loaded = true;
+   }
+
+   return r;
+#else
+   return -1;
+#endif
+}
+
+static int
+dri3_get_crtc_context(struct loader_dri3_drawable *draw, int fd)
+{
+#ifdef HAVE_LIBDRM
+   draw->resources = drmModeGetResources(fd);
+   draw->connector = drmModeGetConnector(fd, draw->resources->connectors[0]);
+   draw->encoder   = drmModeGetEncoder(fd, draw->connector->encoder_id);
+   draw->crtc      = drmModeGetCrtc(fd, draw->encoder->crtc_id);
+#endif
+   return draw->crtc != NULL;
+}
+
+static void
+dri3_release_crtc_context(struct loader_dri3_drawable *draw)
+{
+#ifdef HAVE_LIBDRM
+   drmModeFreeCrtc(draw->crtc);
+   drmModeFreeEncoder(draw->encoder);
+   drmModeFreeConnector(draw->connector);
+   drmModeFreeResources(draw->resources);
+#endif
+}
+
+static unsigned int
+dri3_get_refresh_interval(struct loader_dri3_drawable *draw, int fd)
+{
+   unsigned int refresh = 60;
+
+   if (draw->crtc != NULL && draw->crtc->mode.vrefresh > 0)
+      refresh = draw->crtc->mode.vrefresh;
+   LOGD("%s: refresh returned = %d Hz for fd = %d\n", __func__, refresh, fd);
+
+   return 1000000 / refresh;
+}
+
+static struct loader_dri3_buffer *
+dri3_back_buffer(struct loader_dri3_drawable *draw);
+
+static int
+dri3_page_flip_enable(struct loader_dri3_drawable *draw, int fd, bool enable)
+{
+   int r = 0;
+#ifdef HAVE_LIBDRM
+   struct loader_dri3_buffer* buf = dri3_back_buffer(draw);
+   uint32_t offset = (enable) ? buf->size : 0;
+   uint32_t userdata = 0xdeadbeef;
+
+   if (enable)
+      drmSetMaster(fd);
+
+   r = drmModePageFlipTarget(fd, draw->crtc->crtc_id, draw->crtc->buffer_id,
+      DRM_MODE_PAGE_FLIP_EVENT | DRM_MODE_PAGE_FLIP_TARGET_STEREO,
+      &userdata, offset);
+   LOGD("%s: DRM PageFlipTarget returned = %d for fd = %d\n", __func__, r, fd);
+
+   if (!enable)
+      drmDropMaster(fd);
+#endif
+   return r;
+}
+
+static void* 
+dri3_swap_thread(void* data)
+{
+   struct loader_dri3_drawable *draw = (struct loader_dri3_drawable *)data;
+   unsigned int flags = __DRI2_FLUSH_DRAWABLE | __DRI2_FLUSH_CONTEXT;
+   unsigned int swap_delay = 8333;
+   static int counter = 0;
+   int swapmode = draw->dri_screen->stereo_mode;
+
+   dri3_get_crtc_context(draw, draw->dri_screen->fd);
+   swap_delay = dri3_get_refresh_interval(draw, draw->dri_screen->fd);
+
+   if (swapmode == 2)
+      dri3_page_flip_enable(draw, draw->dri_screen->fd, true);
+
+   while (draw->stereo_swap) {
+      draw->swap_update = false;
+      int r = dri3_wait_for_vblank(draw->dri_screen->fd);
+      if (r != 0)
+         usleep(swap_delay);
+      loader_dri3_swapbuffer_barrier(draw);
+      if (draw->swap_update)
+         loader_dri3_flush(draw, flags, __DRI2_THROTTLE_SWAPBUFFER);
+      else
+         loader_dri3_swap_buffers_msc(draw, 0, 0, 0, flags, NULL, 0, false);
+      counter++;
+      flags ^= __DRI2_FLUSH_STEREO;
+   }
+
+   if (swapmode == 2)
+      dri3_page_flip_enable(draw, draw->dri_screen->fd, false);
+
+   dri3_release_crtc_context(draw);
+
+   return NULL;
+}
+
 void
 loader_dri3_drawable_fini(struct loader_dri3_drawable *draw)
 {
    int i;
+
+   if (draw->stereo) {
+      draw->stereo_swap = false;
+      pthread_join(draw->thread, NULL);
+      LOGI("%s: stereo = %d, swap = %d, pthread terminated\n", 
+        __func__, draw->stereo, draw->stereo_swap);
+   }
 
    draw->ext->core->destroyDrawable(draw->dri_drawable);
 
@@ -391,6 +527,7 @@ loader_dri3_drawable_init(xcb_connection_t *conn,
    xcb_get_geometry_cookie_t cookie;
    xcb_get_geometry_reply_t *reply;
    xcb_generic_error_t *error;
+   int ret = 0;
 
    draw->conn = conn;
    draw->ext = ext;
@@ -464,11 +601,23 @@ loader_dri3_drawable_init(xcb_connection_t *conn,
    draw->vtable->set_drawable_size(draw, draw->width, draw->height);
    free(reply);
 
+   draw->stereo = false; 
    draw->swap_method = __DRI_ATTRIB_SWAP_UNDEFINED;
    if (draw->ext->core->base.version >= 2) {
       (void )draw->ext->core->getConfigAttrib(dri_config,
                                               __DRI_ATTRIB_SWAP_METHOD,
                                               &draw->swap_method);
+      (void )draw->ext->core->getConfigAttrib(dri_config,
+                                              __DRI_ATTRIB_STEREO,
+                                              &draw->stereo);
+   }
+
+   if (draw->stereo) {
+      draw->stereo_swap = true;
+      ret = pthread_create(&draw->thread, NULL, dri3_swap_thread, draw);
+      LOGI("%s: stereo = %d, swap = %d, pthread return = %d\n", 
+        __func__, draw->stereo, draw->stereo_swap, ret);
+      draw->swap_interval = 1;
    }
 
    /*
@@ -640,6 +789,7 @@ loader_dri3_wait_for_msc(struct loader_dri3_drawable *draw,
          mtx_unlock(&draw->mtx);
          return false;
       }
+      usleep(0);
    } while (full_sequence != cookie.sequence || draw->notify_msc < target_msc);
 
    *ust = draw->notify_ust;
@@ -676,6 +826,7 @@ loader_dri3_wait_for_sbc(struct loader_dri3_drawable *draw,
          mtx_unlock(&draw->mtx);
          return 0;
       }
+      usleep(0);
    }
 
    *ust = draw->ust;
@@ -1227,6 +1378,7 @@ loader_dri3_swap_buffers_msc(struct loader_dri3_drawable *draw,
    wait_for_next_buffer = draw->cur_num_back == draw->max_num_back &&
       !draw->queries_buffer_age && draw->block_on_depleted_buffers;
 
+   draw->swap_update = true;
    mtx_unlock(&draw->mtx);
 
    draw->ext->flush->invalidate(draw->dri_drawable);
@@ -2534,7 +2686,9 @@ loader_dri3_swapbuffer_barrier(struct loader_dri3_drawable *draw)
 {
    int64_t ust, msc, sbc;
 
-   (void) loader_dri3_wait_for_sbc(draw, 0, &ust, &msc, &sbc);
+   while (!loader_dri3_wait_for_sbc(draw, 0, &ust, &msc, &sbc)) {
+      usleep(0);
+   }
 }
 
 /**
