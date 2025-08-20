@@ -48,7 +48,7 @@
 #include "loader_dri3_helper.h"
 #include "util/macros.h"
 #include "drm-uapi/drm_fourcc.h"
-#include "gallium/frontends/dri/dri_recs.h"
+#include "gallium/frontends/dri/dri_util.h"
 
 /**
  * A cached blit context.

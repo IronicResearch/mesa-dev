@@ -56,9 +56,9 @@
 #include <GL/gl.h>
 #include <GL/internal/dri_interface.h>
 #include "kopper_interface.h"
-#include "main/formats.h"
-#include "main/glconfig.h"
-#include "main/menums.h"
+#include "mesa/main/formats.h"
+#include "mesa/main/glconfig.h"
+#include "mesa/main/menums.h"
 #include "util/xmlconfig.h"
 #include <stdbool.h>
 
