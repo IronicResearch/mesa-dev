@@ -510,11 +510,29 @@ static const __DRIrobustnessExtension dri2Robustness = {
    .base = { __DRI2_ROBUSTNESS, 1 }
 };
 
+static void
+dri2_flush_drawable(__DRIdrawable *dPriv)
+{
+   dri_flush(dPriv->driContextPriv, dPriv, __DRI2_FLUSH_DRAWABLE, -1);
+}
+
+static void
+dri2_invalidate_drawable(__DRIdrawable *dPriv)
+{
+   struct dri_drawable *drawable = dri_drawable(dPriv);
+
+   dPriv->dri2.stamp++;
+   drawable->dPriv->lastStamp = drawable->dPriv->dri2.stamp;
+   drawable->texture_mask = 0;
+
+   p_atomic_inc(&drawable->base.stamp);
+}
+
 static const __DRI2flushExtension dri2FlushExtension = {
     .base = { __DRI2_FLUSH, 4 },
 
-    .flush                = NULL, //dri2_flush_drawable,
-    .invalidate           = NULL, //dri2_invalidate_drawable,
+    .flush                = dri2_flush_drawable,
+    .invalidate           = dri2_invalidate_drawable,
     .flush_with_flags     = dri_flush,
 };
 
