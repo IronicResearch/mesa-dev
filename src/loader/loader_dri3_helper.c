@@ -466,6 +466,7 @@ dri3_swap_thread(void* data)
          loader_dri3_swap_buffers_msc(draw, 0, 0, 0, flags, NULL, 0, false);
       counter++;
       flags ^= __DRI2_FLUSH_STEREO;
+      draw->stereo_flags ^= __DRI2_FLUSH_STEREO;
    }
 
    if (swapmode == 2)
@@ -614,6 +615,7 @@ loader_dri3_drawable_init(xcb_connection_t *conn,
 
    if (draw->stereo) {
       draw->stereo_swap = true;
+      draw->stereo_flags = 0;
       ret = pthread_create(&draw->thread, NULL, dri3_swap_thread, draw);
       LOGI("%s: stereo = %d, swap = %d, pthread return = %d\n", 
         __func__, draw->stereo, draw->stereo_swap, ret);
@@ -1174,6 +1176,8 @@ loader_dri3_swap_buffers_msc(struct loader_dri3_drawable *draw,
    if (!draw->have_back || draw->type == LOADER_DRI3_DRAWABLE_PIXMAP)
       return ret;
 
+   if (draw->stereo_flags)
+      flush_flags |= draw->stereo_flags;
    draw->vtable->flush_drawable(draw, flush_flags);
 
    back = dri3_find_back_alloc(draw);

@@ -202,6 +202,7 @@ struct loader_dri3_drawable {
    bool has_event_waiter;
 
    unsigned int stereo;
+   unsigned int stereo_flags;
    bool stereo_swap;
    bool swap_update;
    pthread_t thread;

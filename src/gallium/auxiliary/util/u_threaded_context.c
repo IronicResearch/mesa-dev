@@ -4243,6 +4243,9 @@ tc_call_flush_resource(struct pipe_context *pipe, void *call, uint64_t *last)
 {
    struct pipe_resource *resource = to_call(call, tc_resource_call)->resource;
 
+   if (!resource)
+      return call_size(tc_resource_call);
+
    pipe->flush_resource(pipe, resource);
    tc_drop_resource_reference(resource);
    return call_size(tc_resource_call);
