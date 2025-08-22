@@ -613,6 +613,7 @@ loader_dri3_drawable_init(xcb_connection_t *conn,
                                               &draw->stereo);
    }
 
+#if 0
    if (draw->stereo) {
       draw->stereo_swap = true;
       draw->stereo_flags = 0;
@@ -621,6 +622,7 @@ loader_dri3_drawable_init(xcb_connection_t *conn,
         __func__, draw->stereo, draw->stereo_swap, ret);
       draw->swap_interval = 1;
    }
+#endif
 
    /*
     * Make sure server has the same swap interval we do for the new

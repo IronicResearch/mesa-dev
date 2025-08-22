@@ -590,9 +590,15 @@ dri3_swap_buffers(__GLXDRIdrawable *pdraw, int64_t target_msc, int64_t divisor,
 {
    struct dri3_drawable *priv = (struct dri3_drawable *) pdraw;
    unsigned flags = __DRI2_FLUSH_DRAWABLE;
+   static unsigned int stereo_flags = 0;
 
    if (flush)
       flags |= __DRI2_FLUSH_CONTEXT;
+
+   if (priv->loader_drawable.stereo && !priv->loader_drawable.stereo_swap) {
+      flags |= stereo_flags;
+      stereo_flags ^= __DRI2_FLUSH_STEREO;
+   }
 
    return loader_dri3_swap_buffers_msc(&priv->loader_drawable,
                                        target_msc, divisor, remainder,
