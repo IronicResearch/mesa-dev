@@ -443,7 +443,7 @@ static void*
 dri3_swap_thread(void* data)
 {
    struct loader_dri3_drawable *draw = (struct loader_dri3_drawable *)data;
-   unsigned int flags = __DRI2_FLUSH_DRAWABLE | __DRI2_FLUSH_CONTEXT;
+   unsigned int swap_flags = __DRI2_FLUSH_DRAWABLE | __DRI2_FLUSH_CONTEXT;
    unsigned int swap_delay = 8333;
    static int counter = 0;
    int swapmode = draw->dri_screen->stereo_mode;
@@ -460,13 +460,14 @@ dri3_swap_thread(void* data)
       if (r != 0)
          usleep(swap_delay);
       loader_dri3_swapbuffer_barrier(draw);
+      if (!draw->swap_update)
+         draw->stereo_flags ^= __DRI2_FLUSH_STEREO;
+      int flags = swap_flags | draw->stereo_flags;
       if (draw->swap_update)
          loader_dri3_flush(draw, flags, __DRI2_THROTTLE_SWAPBUFFER);
       else
          loader_dri3_swap_buffers_msc(draw, 0, 0, 0, flags, NULL, 0, false);
       counter++;
-      flags ^= __DRI2_FLUSH_STEREO;
-      draw->stereo_flags ^= __DRI2_FLUSH_STEREO;
    }
 
    if (swapmode == 2)
@@ -613,7 +614,6 @@ loader_dri3_drawable_init(xcb_connection_t *conn,
                                               &draw->stereo);
    }
 
-#if 0
    if (draw->stereo) {
       draw->stereo_swap = true;
       draw->stereo_flags = 0;
@@ -622,7 +622,6 @@ loader_dri3_drawable_init(xcb_connection_t *conn,
         __func__, draw->stereo, draw->stereo_swap, ret);
       draw->swap_interval = 1;
    }
-#endif
 
    /*
     * Make sure server has the same swap interval we do for the new
@@ -1178,8 +1177,6 @@ loader_dri3_swap_buffers_msc(struct loader_dri3_drawable *draw,
    if (!draw->have_back || draw->type == LOADER_DRI3_DRAWABLE_PIXMAP)
       return ret;
 
-   if (draw->stereo_flags)
-      flush_flags |= draw->stereo_flags;
    draw->vtable->flush_drawable(draw, flush_flags);
 
    back = dri3_find_back_alloc(draw);
