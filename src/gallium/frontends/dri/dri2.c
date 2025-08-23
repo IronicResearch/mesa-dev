@@ -548,7 +548,7 @@ dri2_allocate_textures(struct dri_context *ctx,
 
       if (images.image_mask & __DRI_IMAGE_BUFFER_BACK) {
          struct pipe_resource **buf =
-            &drawable->textures[ST_ATTACHMENT_BACK_LEFT];
+            &drawable->textures[dri_get_stereo_swap() ? ST_ATTACHMENT_BACK_RIGHT : ST_ATTACHMENT_BACK_LEFT];
          struct pipe_resource *texture = images.back->texture;
 
          dri_drawable->w = texture->width0;
