@@ -443,7 +443,7 @@ static void*
 dri3_swap_thread(void* data)
 {
    struct loader_dri3_drawable *draw = (struct loader_dri3_drawable *)data;
-   unsigned int swap_flags = __DRI2_FLUSH_DRAWABLE | __DRI2_FLUSH_CONTEXT;
+   unsigned int swap_flags = __DRI2_FLUSH_DRAWABLE | __DRI2_FLUSH_CONTEXT, flags;
    unsigned int swap_delay = 8333;
    static int counter = 0;
    int swapmode = draw->dri_screen->stereo_mode;
@@ -460,13 +460,13 @@ dri3_swap_thread(void* data)
       if (r != 0)
          usleep(swap_delay);
       loader_dri3_swapbuffer_barrier(draw);
-      if (!draw->swap_update)
-         draw->stereo_flags ^= __DRI2_FLUSH_STEREO;
-      int flags = swap_flags | draw->stereo_flags;
+      flags = swap_flags | draw->stereo_flags;
       if (draw->swap_update)
          loader_dri3_flush(draw, flags, __DRI2_THROTTLE_SWAPBUFFER);
-      else
+      else {
          loader_dri3_swap_buffers_msc(draw, 0, 0, 0, flags, NULL, 0, false);
+         draw->stereo_flags ^= __DRI2_FLUSH_STEREO;
+      }
       counter++;
    }
 
