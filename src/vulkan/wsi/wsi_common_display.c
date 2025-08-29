@@ -65,10 +65,6 @@
 #define wsi_display_debug_code(...)
 #endif
 
-#ifndef DRM_MODE_PAGE_FLIP_TARGET_STEREO
-#define DRM_MODE_PAGE_FLIP_TARGET_STEREO  (DRM_MODE_PAGE_FLIP_TARGET_RELATIVE << 1)
-#endif
-
 /* These have lifetime equal to the instance, so they effectively
  * never go away. This means we must keep track of them separately
  * from all other resources.
@@ -99,7 +95,6 @@ typedef struct wsi_display_connector {
 #ifdef VK_USE_PLATFORM_XLIB_XRANDR_EXT
    xcb_randr_output_t           output;
 #endif
-   bool                         stereo;
 } wsi_display_connector;
 
 struct wsi_display {
@@ -1547,9 +1542,6 @@ wsi_display_setup_connector(wsi_display_connector *connector,
       connector->current_drm_mode = *drm_mode;
    }
 
-   /* detect stereo display mode placeholder */
-   connector->stereo = get_stereo_mode_option() == 2;
-
 bail_connector:
    drmModeFreeConnector(drm_connector);
 bail_mode_res:
@@ -1845,15 +1837,6 @@ _wsi_display_queue_next(struct wsi_swapchain *drv_chain)
 
       int ret;
       if (connector->active) {
-         uint32_t target = 0;
-         uint32_t flags = DRM_MODE_PAGE_FLIP_EVENT;
-         if (connector->stereo) {
-            flags |= DRM_MODE_PAGE_FLIP_TARGET_STEREO;
-            target = image->base.row_pitches[0] * display_mode->vdisplay / 2;
-            ret = drmModePageFlipTarget(wsi->fd, connector->crtc_id, image->fb_id,
-                                   flags, image, target);
-         }
-         else
          ret = drmModePageFlip(wsi->fd, connector->crtc_id, image->fb_id,
                                    DRM_MODE_PAGE_FLIP_EVENT, image);
          if (ret == 0) {
