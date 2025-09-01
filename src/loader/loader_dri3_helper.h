@@ -211,7 +211,11 @@ struct loader_dri3_drawable {
    drmModeConnector*  connector;
    drmModeEncoder*    encoder;
    drmModeCrtc*       crtc;
+   drmModeFBPtr       fb;
 #endif
+   char*              fbmem;
+   uint32_t           fblen;
+   uint64_t           fboff;
 };
 
 void

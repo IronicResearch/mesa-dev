@@ -41,6 +41,8 @@
 #ifndef DRM_MODE_PAGE_FLIP_TARGET_STEREO
 #define DRM_MODE_PAGE_FLIP_TARGET_STEREO  (DRM_MODE_PAGE_FLIP_TARGET_RELATIVE << 1)
 #endif
+#include <sys/ioctl.h>
+#include <sys/mman.h>
 #endif
 
 #include "loader.h"
@@ -386,6 +388,7 @@ dri3_get_crtc_context(struct loader_dri3_drawable *draw, int fd)
    draw->connector = drmModeGetConnector(fd, draw->resources->connectors[0]);
    draw->encoder   = drmModeGetEncoder(fd, draw->connector->encoder_id);
    draw->crtc      = drmModeGetCrtc(fd, draw->encoder->crtc_id);
+   draw->fb        = drmModeGetFB(fd, draw->crtc->buffer_id);
 #endif
    return draw->crtc != NULL;
 }
@@ -394,6 +397,7 @@ static void
 dri3_release_crtc_context(struct loader_dri3_drawable *draw)
 {
 #ifdef HAVE_LIBDRM
+   drmModeFreeFB(draw->fb);
    drmModeFreeCrtc(draw->crtc);
    drmModeFreeEncoder(draw->encoder);
    drmModeFreeConnector(draw->connector);
@@ -425,16 +429,27 @@ dri3_page_flip_enable(struct loader_dri3_drawable *draw, int fd, bool enable)
    uint32_t offset = (enable) ? buf->size : 0;
    uint32_t userdata = 0xdeadbeef;
 
-   if (enable)
+   if (enable) {
       drmSetMaster(fd);
+      draw->fb = drmModeGetFB(fd, draw->crtc->buffer_id);
+      if (draw->fb->handle) {
+         struct drm_mode_map_dumb req_map = { .handle = draw->fb->handle };
+         ioctl(fd, DRM_IOCTL_MODE_MAP_DUMB, &req_map);
+         draw->fboff = req_map.offset + draw->fb->pitch * (draw->fb->height-1);
+         draw->fblen = draw->fb->pitch;
+         draw->fbmem = mmap(NULL, draw->fblen, PROT_READ | PROT_WRITE, MAP_SHARED, fd, draw->fboff);
+      }
+   }
 
    r = drmModePageFlipTarget(fd, draw->crtc->crtc_id, draw->crtc->buffer_id,
       DRM_MODE_PAGE_FLIP_EVENT | DRM_MODE_PAGE_FLIP_TARGET_STEREO,
       &userdata, offset);
    LOGD("%s: DRM PageFlipTarget returned = %d for fd = %d\n", __func__, r, fd);
 
-   if (!enable)
+   if (!enable) {
       drmDropMaster(fd);
+      munmap(draw->fbmem, draw->fblen);
+   }
 #endif
    return r;
 }
@@ -466,6 +481,10 @@ dri3_swap_thread(void* data)
       else {
          loader_dri3_swap_buffers_msc(draw, 0, 0, 0, flags, NULL, 0, false);
          draw->stereo_flags ^= __DRI2_FLUSH_STEREO;
+      }
+      if (draw->fbmem) {
+          char tag = (draw->stereo_flags & __DRI2_FLUSH_STEREO) ? 0xFF : 0;
+          memset(draw->fbmem, tag, draw->fblen);
       }
       counter++;
    }
