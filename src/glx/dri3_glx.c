@@ -596,7 +596,8 @@ dri3_swap_buffers(__GLXDRIdrawable *pdraw, int64_t target_msc, int64_t divisor,
 
    if (priv->loader_drawable.stereo) {
       flags |= priv->loader_drawable.stereo_flags;
-      priv->loader_drawable.stereo_flags ^= __DRI2_FLUSH_STEREO;
+      if (!priv->loader_drawable.stereo_swap)
+         priv->loader_drawable.stereo_flags ^= __DRI2_FLUSH_STEREO;
    }
 
    return loader_dri3_swap_buffers_msc(&priv->loader_drawable,

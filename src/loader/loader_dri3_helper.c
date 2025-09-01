@@ -478,14 +478,13 @@ dri3_swap_thread(void* data)
       flags = swap_flags | draw->stereo_flags;
       if (draw->swap_update)
          loader_dri3_flush(draw, flags, __DRI2_THROTTLE_SWAPBUFFER);
-      else {
+      else
          loader_dri3_swap_buffers_msc(draw, 0, 0, 0, flags, NULL, 0, false);
-         draw->stereo_flags ^= __DRI2_FLUSH_STEREO;
-      }
       if (draw->fbmem) {
           char tag = (draw->stereo_flags & __DRI2_FLUSH_STEREO) ? 0xFF : 0;
           memset(draw->fbmem, tag, draw->fblen);
       }
+      draw->stereo_flags ^= __DRI2_FLUSH_STEREO;
       counter++;
    }
 
